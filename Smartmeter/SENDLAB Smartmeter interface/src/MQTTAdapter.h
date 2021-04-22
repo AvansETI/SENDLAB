@@ -1,5 +1,6 @@
-#include "Config.h"
+#pragma once
 #include <PubSubClient.h>
+#include <Config.h>
 
 class MQTTAdapter {
     public:

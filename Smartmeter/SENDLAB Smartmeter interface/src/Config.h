@@ -1,11 +1,15 @@
-constexpr char  WIFI_SSID[] = "SENDLAB";
-constexpr char  WIFI_PASS[] = "SEnDLab@LA121";
+#pragma once
+constexpr char WIFI_SSID[] = "SENDLAB";
+constexpr char WIFI_PASS[] = "SEnDLab@LA121";
 
-constexpr int   SENSORID = 0;
+constexpr int SENSORID = 0;
 
-constexpr char  MQTT_SERVER_HOST[] = "10.0.0.31";
-constexpr int   MQTT_SERVER_PORT = 1884;
-constexpr char  MQTT_ID[] = "SENDLAB_SMARTMETER";
-constexpr char  MQTT_USERNAME[] = "";
-constexpr char  MQTT_PASS[] = "";
+constexpr char MQTT_SERVER_HOST[] = "10.0.0.31";
+constexpr int MQTT_SERVER_PORT = 1884;
+constexpr char MQTT_ID[] = "SENDLAB_SMARTMETER";
+constexpr char MQTT_USERNAME[] = "";
+constexpr char MQTT_PASS[] = "";
 
+constexpr int PIN_RED = D6;
+constexpr int PIN_GREEN = D1;
+constexpr int PIN_BLUE = D5;

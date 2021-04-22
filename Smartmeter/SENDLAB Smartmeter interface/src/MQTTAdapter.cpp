@@ -1,9 +1,10 @@
-#include "MQTTAdapter.h"
+#include <MQTTAdapter.h>
 
 MQTTAdapter::MQTTAdapter(Client &client)
 {
     mqtt.setClient(client);
     mqtt.setBufferSize(2048);
+    
     mqtt.setServer(MQTT_SERVER_HOST, MQTT_SERVER_PORT);
 }
 
