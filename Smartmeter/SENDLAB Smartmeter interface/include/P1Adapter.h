@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-#define P1_MAX_DATAGRAM_SIZE 1024
+#define P1_MAX_DATAGRAM_SIZE 2048
 
 typedef enum {
     P1_MSG_START,

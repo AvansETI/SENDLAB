@@ -1,6 +1,10 @@
 #include <MQTTAdapter.h>
 
-MQTTAdapter::MQTTAdapter(Client &client)
+MQTTAdapter::MQTTAdapter()
+{
+}
+
+void MQTTAdapter::init(Client &client)
 {
     mqtt.setClient(client);
     mqtt.setBufferSize(2048);
@@ -16,6 +20,7 @@ void MQTTAdapter::connect()
         if (mqtt.connected())
         {
             // connected
+            //publish("SENDLABSMARTMETERTEST","Connected!");
         }
     }
 }
@@ -40,7 +45,7 @@ void MQTTAdapter::setCallback(std::function<void(char *, uint8_t *, unsigned int
     mqtt.setCallback(callback);
 }
 
-void MQTTAdapter::publish(char topic[], char message[])
+void MQTTAdapter::publish(const char* topic, const char* message)
 {
     mqtt.publish(topic, message);
 }
