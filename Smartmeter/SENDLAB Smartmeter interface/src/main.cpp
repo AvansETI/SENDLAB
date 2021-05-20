@@ -278,9 +278,15 @@ std::map<std::string, std::string> parseToMap(char buffer[P1_MAX_DATAGRAM_SIZE])
 	for (auto const& word : temp) {
 		std::string key = split(word, "(").front();
 		std::string data = word.substr(key.length());
+
 		if (data.find("(") == data.find_last_of("(")) {
-			data = data.substr(data.find("(") + 1, data.find(")"));
+			data = data.substr(data.find("(") + 1, data.find(")") - 1);
 		}
+
+    
+    if (data.find('*') != std::string::npos){
+      data = data.substr(0, data.find('*'));
+    }
 
     map.insert({key, data});
 	}
