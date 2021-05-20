@@ -10,7 +10,7 @@ class MQTTAdapter {
         void connect();
         void disconnect();
         bool connected();
-        void subscribe(char topic[]);
+        void subscribe(const char topic[]);
         void setCallback(std::function<void(char *, uint8_t *, unsigned int)> callback);
         void publish(const char* topic, const char* message);
 };

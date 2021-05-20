@@ -7,17 +7,18 @@ MQTTAdapter::MQTTAdapter()
 void MQTTAdapter::init(Client &client)
 {
     mqtt.setClient(client);
-    mqtt.setBufferSize(2048);
+    mqtt.setBufferSize(5120);
     
     mqtt.setServer(MQTT_SERVER_HOST, MQTT_SERVER_PORT);
+    
 }
 
 void MQTTAdapter::connect()
 {
     while (!mqtt.connected())
     {
-        mqtt.connect(MQTT_ID);
-        if (mqtt.connected())
+        mqtt.connect(MQTT_ID, MQTT_USERNAME, MQTT_PASS);
+        if (mqtt.connected())   
         {
             // connected
             //publish("SENDLABSMARTMETERTEST","Connected!");
@@ -35,7 +36,7 @@ bool MQTTAdapter::connected()
     return mqtt.connected();
 }
 
-void MQTTAdapter::subscribe(char topic[])
+void MQTTAdapter::subscribe(const char topic[])
 {
     mqtt.subscribe(topic);
 }
