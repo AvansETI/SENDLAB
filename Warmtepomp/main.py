@@ -13,8 +13,7 @@ def on_connect_sendlab(client, userdata, flags, rc):
 
 def on_connect_localhost(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
-
-    client.publish("test", "Pi Connected" + time.asctime(time.localtime()))
+    print("Pi Connected at: " + time.asctime(time.localtime()))
 
 
 # The callback for when a PUBLISH message is received from the server.
