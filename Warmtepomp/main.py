@@ -1,6 +1,7 @@
+from threading import local
 import paho.mqtt.client as mqtt
 
-localhost = mqtt.Client("heatpump", transport="websockets")
+localhost = mqtt.Client()
 sendlab = mqtt.Client()
 
 def on_connect(client, userdata, flags, rc):
@@ -15,12 +16,12 @@ def on_message(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
 
 
-sendlab.on_connect = on_connect
-sendlab.on_message = on_message
+localhost.on_connect = on_connect
+localhost.on_message = on_message
 
-#localhost.connect("localhost", 1183, 60, "10.0.0.1")
-sendlab.username_pw_set("server", password="servernode")
-sendlab.connect("sendlab.nl", 11884, 60)
+localhost.connect("10.0.0.1", 1183, 60, "10.0.0.1")
+# sendlab.username_pw_set("server", password="servernode")
+# sendlab.connect("sendlab.nl", 11884, 60)
 
 while( 1 ):
-    sendlab.loop()
+    localhost.loop()
