@@ -5,7 +5,7 @@ sendlab = mqtt.Client()
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
-    print(client.hostname)
+    print(client)
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
