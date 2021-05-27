@@ -31,7 +31,7 @@ localhost.connect("localhost", 1883, 60)
 
 #sendlab.username_pw_set("server", password="servernode")
 sendlab.username_pw_set("node", password="smartmeternode")
-sendlab.connect("10.0.0.31", 11884, 60)
+sendlab.connect("sendlab.gw", 11884, 60)
 
 while( 1 ):
     localhost.loop()
