@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 
-localhost = mqtt.Client("heatpump")
+localhost = mqtt.Client("heatpump", transport="websockets")
 sendlab = mqtt.Client()
 
 def on_connect_localhost(client, userdata, flags, rc):
@@ -18,4 +18,4 @@ def on_message_localhost(client, userdata, msg):
 localhost.on_connect = on_connect_localhost
 localhost.on_message = on_message_localhost
 
-localhost.connect("localhost", 1183, 60, "10.0.0.0")
+localhost.connect("localhost", 1183, 60, "10.0.0.1")
