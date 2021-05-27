@@ -1,7 +1,6 @@
-from threading import local
 import paho.mqtt.client as mqtt
 
-localhost = mqtt.Client()
+localhost = mqtt.Client(transport="websockets")
 sendlab = mqtt.Client()
 
 def on_connect(client, userdata, flags, rc):
@@ -19,7 +18,7 @@ def on_message(client, userdata, msg):
 localhost.on_connect = on_connect
 localhost.on_message = on_message
 
-localhost.connect("10.0.0.1", 1183, 60, "10.0.0.1")
+localhost.connect("10.0.0.1", 1183, 60)
 # sendlab.username_pw_set("server", password="servernode")
 # sendlab.connect("sendlab.nl", 11884, 60)
 
