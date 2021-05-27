@@ -18,7 +18,7 @@ def on_message(client, userdata, msg):
 localhost.on_connect = on_connect
 localhost.on_message = on_message
 
-localhost.connect("10.0.0.1", 1183, 60)
+localhost.connect("127.0.0.1", 1183, 60)
 # sendlab.username_pw_set("server", password="servernode")
 # sendlab.connect("sendlab.nl", 11884, 60)
 
