@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 
-localhost = mqtt.Client(transport="websockets")
+localhost = mqtt.Client("test",transport="websockets")
 sendlab = mqtt.Client()
 
 def on_connect(client, userdata, flags, rc):
