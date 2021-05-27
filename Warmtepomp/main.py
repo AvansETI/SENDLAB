@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 
-localhost = mqtt.Client()
+localhost = mqtt.Client("heatpump")
 sendlab = mqtt.Client()
 
 def on_connect_localhost(client, userdata, flags, rc):
