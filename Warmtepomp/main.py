@@ -15,6 +15,18 @@ def on_connect_localhost(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
     print("Pi Connected at: " + time.asctime(time.localtime()))
 
+    client.subscribe("homie/daikin-heatingunit/spaceheating/1-operation-targettemperature")
+    client.subscribe("homie/daikin-heatingunit/spaceheating/1-sensor-indoortemperature")
+    client.subscribe("homie/daikin-heatingunit/spaceheating/1-sensor-outdoortemperature")
+    client.subscribe("homie/daikin-heatingunit/spaceheating/1-operation-roomtemperatureauto")
+    client.subscribe("homie/daikin-heatingunit/spaceheating/1-operation-roomtemperaturecooling")
+    client.subscribe("homie/daikin-heatingunit/spaceheating/1-operation-roomtemperatureheating")
+    client.subscribe("homie/daikin-heatingunit/spaceheating/1-consumption")
+
+    client.subscribe("homie/daikin-heatingunit/domestichotwatertank/2-sensor-tanktemperature")
+    client.subscribe("homie/daikin-heatingunit/domestichotwatertank/2-operation-targettemperature")
+    client.subscribe("homie/daikin-heatingunit/domestichotwatertank/2-consumption")
+
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
