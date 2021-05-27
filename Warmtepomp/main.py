@@ -18,4 +18,4 @@ def on_message_localhost(client, userdata, msg):
 localhost.on_connect = on_connect_localhost
 localhost.on_message = on_message_localhost
 
-localhost.connect("127.0.0.1", 1183, 60)
+localhost.connect("localhost", 1183, 60, "10.0.0.1")
