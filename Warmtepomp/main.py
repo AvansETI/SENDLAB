@@ -37,7 +37,7 @@ def on_message_sendlab(client, userdata, msg):
 
 def on_message_localhost(client, userdata, msg):
     #print(msg.topic+" "+str(msg.payload))
-    topic = msg.topic[24]
+    topic = msg.topic[24:]
     print(topic)
     
 
