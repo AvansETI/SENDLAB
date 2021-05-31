@@ -1,5 +1,5 @@
 import paho.mqtt.client as mqtt
-import time
+import datetime
 
 localhost = mqtt.Client("test")
 sendlab = mqtt.Client()
@@ -13,7 +13,7 @@ def on_connect_sendlab(client, userdata, flags, rc):
 
 def on_connect_localhost(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
-    print("Pi Connected at: " + time.asctime(time.localtime()))
+    print("Pi Connected at: " + datetime.now())
 
     client.subscribe("homie/daikin-heatingunit/spaceheating/1-operation-targettemperature")
     client.subscribe("homie/daikin-heatingunit/spaceheating/1-sensor-indoortemperature")
@@ -45,6 +45,13 @@ localhost.connect("localhost", 1883, 60)
 sendlab.username_pw_set("node", password="smartmeternode")
 sendlab.connect("sendlab.nl", 11884, 60)
 
+
+timestamp = datetime.now()
 while( 1 ):
     localhost.loop()
     sendlab.loop()
+
+    timediff = datetime.now() - timestamp
+    if ( timediff.seconds > 10 ):
+        print("test")
+        timestamp = datetime.now()
