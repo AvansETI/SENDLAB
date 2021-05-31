@@ -63,28 +63,39 @@ def on_message_localhost(client, userdata, msg):
             global spaceTargetTemp
             spaceTargetTemp = msg.payload
         if value == "operation-operationmode":
+            global spaceOpMode
             spaceOpMode = msg.payload
         if value == "operation-roomtemperatureauto":
+            global spaceRoomTempAuto
             spaceRoomTempAuto = msg.payload
         if value == "operation-roomtemperaturecooling":
+            global spaceRoomTempCooling
             spaceRoomTempCooling = msg.payload
         if value == "operation-roomtemperatureheating":
+            global spaceRoomTempHeating
             spaceRoomTempHeating = msg.payload
         if value == "sensor-indoortemperature":
+            global spaceSensIndoorTemp
             spaceSensIndoorTemp = msg.payload
         if value == "sensor-outdoortemperature":
+            global spaceSensOutdoorTemp
             spaceSensOutdoorTemp = msg.payload
         if value == "consumption":
+            global spaceheatingConsumption
             spaceheatingConsumption = msg.payload
          
     if category == "domestichotwatertank":
         if value == "sensor-tanktemperature":
+            global sensorTankTemp
             sensorTankTemp = msg.payload
         if value == "operation-targettemperature":
+            global opTankTargetTemp
             opTankTargetTemp = msg.payload
         if value == "operation-operationmode":
+            global opModeWaterTank
             opModeWaterTank = msg.payload
         if value == "consumption":
+            global waterTankConsumption
             waterTankConsumption = msg.payload
 
 sensorInit = {
