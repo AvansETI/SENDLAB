@@ -5,7 +5,6 @@ import time
 
 sensorId = "SENDLAB_WARMTEPOMP"
 
-spaceTargetTemp = 0
 spaceOpMode = ""
 spaceRoomTempAuto = 0
 spaceRoomTempCooling = 0
@@ -22,15 +21,14 @@ localhost = mqtt.Client("test")
 sendlab = mqtt.Client()
 
 def on_connect_sendlab(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
+    print("Connected To Sendlab")
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
     client.subscribe("node/" + sensorId + "/message", qos = 0)
 
 def on_connect_localhost(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
-    print("Pi Connected at: " + datetime.now().isoformat())
+    print("Connected To Localhost")
 
     client.subscribe("homie/daikin-heatingunit/spaceheating/1-operation-targettemperature")
     client.subscribe("homie/daikin-heatingunit/spaceheating/1-sensor-indoortemperature")
@@ -57,9 +55,12 @@ def on_message_localhost(client, userdata, msg):
     topic = msg.topic[25:]
     category = topic[:12]
     value = topic[15:]
+
+    
     
     if category == "spaceheating":
         if value == "operation-targettemperature":
+            global spaceTargetTemp
             spaceTargetTemp = msg.payload
         if value == "operation-operationmode":
             spaceOpMode = msg.payload
