@@ -47,12 +47,12 @@ sendlab.username_pw_set("node", password="smartmeternode")
 sendlab.connect("sendlab.nl", 11884, 60)
 
 
-timestamp = time.localtime()
+timestamp = time.time()
 while( 1 ):
     localhost.loop()
     sendlab.loop()
 
-    timediff = time.localtime() - timestamp
-    if ( timediff.seconds > 10 ):
-        print(time.localtime())
-        timestamp = time.localtime()
+    timediff = time.time() - timestamp
+    if ( timediff > 10 ):
+        print(time.time())
+        timestamp = time.time()
