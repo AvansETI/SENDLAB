@@ -72,7 +72,7 @@ std::string createInit(){
   n6["unit"] = "W";
 
   JsonObject n7 = array.createNestedObject();
-  n7["name"] = "Actual elecrticity power received";
+  n7["name"] = "Actual electricity power received";
   n7["description"] = "Actual electricity power received (-P) in 1 Watt resolution. OBIS-ref: 1-0:2.7.0.255";
   n7["unit"] = "W";
 
@@ -332,7 +332,7 @@ char* parseToJson(char buffer[P1_MAX_DATAGRAM_SIZE]){
   n["Electricity delivered by client (Tariff 2)"] =   atof(getMapData(data,"1-0:2.8.2").c_str());
   n["Tariff indicator electricity"] =                 atof(getMapData(data,"0-0:96.14.0").c_str());
   n["Actual electricity power delivered"] =           atof(getMapData(data,"1-0:1.7.0").c_str());
-  n["Actual elecrticity power received"] =            atof(getMapData(data,"1-0:2.7.0").c_str());
+  n["Actual electricity power received"] =            atof(getMapData(data,"1-0:2.7.0").c_str());
   n["Number of power failures"] =                     atof(getMapData(data,"1-0:96.7.21").c_str());
   n["Number of long power failures"] =                atof(getMapData(data,"1-0:96.7.9").c_str());
   n["Number of voltage sags L1"] =                    atof(getMapData(data,"1-0:32.32.0").c_str());
