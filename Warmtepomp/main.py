@@ -39,7 +39,7 @@ def on_message_localhost(client, userdata, msg):
     #print(msg.topic+" "+str(msg.payload))
     topic = msg.topic[25:]
     category = topic[:12]
-    print(topic + category)
+    print(category)
     
 
 localhost.on_connect = on_connect_localhost
