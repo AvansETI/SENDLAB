@@ -326,39 +326,38 @@ char* parseToJson(char buffer[P1_MAX_DATAGRAM_SIZE]){
 
   n["timestamp"] =                                    parseTime(getMapData(data, "0-0:1.0.0").c_str()).c_str();
   //n["timestamp"] =                                    ntp.getEpochTime();
-  n["Electricity delivered to client (Tariff 1)"] =   getMapData(data,"1-0:1.8.1").c_str();
-  n["Electricity delivered to client (Tariff 2)"] =   getMapData(data,"1-0:1.8.2").c_str();
-  n["Electricity delivered by client (Tariff 1)"] =   getMapData(data,"1-0:2.8.1").c_str();
-  n["Electricity delivered by client (Tariff 2)"] =   getMapData(data,"1-0:2.8.2").c_str();
-  n["Tariff indicator electricity"] =                 getMapData(data,"0-0:96.14.0").c_str();
-  n["Actual electricity power delivered"] =           getMapData(data,"1-0:1.7.0").c_str();
-  n["Actual elecrticity power received"] =            getMapData(data,"1-0:2.7.0").c_str();
-  n["Instantaneous voltage L1"] =                     getMapData(data,"1-0:32.7.0").c_str();
-  n["Number of power failures"] =                     getMapData(data,"1-0:96.7.21").c_str();
-  n["Number of long power failures"] =                getMapData(data,"1-0:96.7.9").c_str();
-  n["Number of voltage sags L1"] =                    getMapData(data,"1-0:32.32.0").c_str();
-  n["Number of voltage sags L2"] =                    getMapData(data,"1-0:52.32.0").c_str();
-  n["Number of voltage sags L3"] =                    getMapData(data,"1-0:72.32.0").c_str();
-  n["Number of voltage swells L1"] =                  getMapData(data,"1-0:32.32.0").c_str();
-  n["Number of voltage swells L2"] =                  getMapData(data,"1-0:52.32.0").c_str();
-  n["Number of voltage swells L3"] =                  getMapData(data,"1-0:72.32.0").c_str();
-  n["Instantaneous voltage L1"] =                     getMapData(data,"1-0:32.7.0").c_str();
-  n["Instantaneous voltage L2"] =                     getMapData(data,"1-0:52.7.0").c_str();
-  n["Instantaneous voltage L3"] =                     getMapData(data,"1-0:72.7.0").c_str();
-  n["Instantaneous current L1"] =                     getMapData(data,"1-0:31.7.0").c_str();
-  n["Instantaneous current L2"] =                     getMapData(data,"1-0:51.7.0").c_str();
-  n["Instantaneous current L3"] =                     getMapData(data,"1-0:71.7.0").c_str();
-  n["Instantaneous active power L1 (+P)"] =           getMapData(data,"1-0:21.7.0").c_str();
-  n["Instantaneous active power L2 (+P)"] =           getMapData(data,"1-0:41.7.0").c_str();
-  n["Instantaneous active power L3 (+P)"] =           getMapData(data,"1-0:61.7.0").c_str();
-  n["Instantaneous active power L1 (-P)"] =           getMapData(data,"1-0:22.7.0").c_str();
-  n["Instantaneous active power L2 (-P)"] =           getMapData(data,"1-0:42.7.0").c_str();
-  n["Instantaneous active power L3 (-P)"] =           getMapData(data,"1-0:62.7.0").c_str();
+  n["Electricity delivered to client (Tariff 1)"] =   atof(getMapData(data,"1-0:1.8.1").c_str());
+  n["Electricity delivered to client (Tariff 2)"] =   atof(getMapData(data,"1-0:1.8.2").c_str());
+  n["Electricity delivered by client (Tariff 1)"] =   atof(getMapData(data,"1-0:2.8.1").c_str());
+  n["Electricity delivered by client (Tariff 2)"] =   atof(getMapData(data,"1-0:2.8.2").c_str());
+  n["Tariff indicator electricity"] =                 atof(getMapData(data,"0-0:96.14.0").c_str());
+  n["Actual electricity power delivered"] =           atof(getMapData(data,"1-0:1.7.0").c_str());
+  n["Actual elecrticity power received"] =            atof(getMapData(data,"1-0:2.7.0").c_str());
+  n["Number of power failures"] =                     atof(getMapData(data,"1-0:96.7.21").c_str());
+  n["Number of long power failures"] =                atof(getMapData(data,"1-0:96.7.9").c_str());
+  n["Number of voltage sags L1"] =                    atof(getMapData(data,"1-0:32.32.0").c_str());
+  n["Number of voltage sags L2"] =                    atof(getMapData(data,"1-0:52.32.0").c_str());
+  n["Number of voltage sags L3"] =                    atof(getMapData(data,"1-0:72.32.0").c_str());
+  n["Number of voltage swells L1"] =                  atof(getMapData(data,"1-0:32.32.0").c_str());
+  n["Number of voltage swells L2"] =                  atof(getMapData(data,"1-0:52.32.0").c_str());
+  n["Number of voltage swells L3"] =                  atof(getMapData(data,"1-0:72.32.0").c_str());
+  n["Instantaneous voltage L1"] =                     atof(getMapData(data,"1-0:32.7.0").c_str());
+  n["Instantaneous voltage L2"] =                     atof(getMapData(data,"1-0:52.7.0").c_str());
+  n["Instantaneous voltage L3"] =                     atof(getMapData(data,"1-0:72.7.0").c_str());
+  n["Instantaneous current L1"] =                     atof(getMapData(data,"1-0:31.7.0").c_str());
+  n["Instantaneous current L2"] =                     atof(getMapData(data,"1-0:51.7.0").c_str());
+  n["Instantaneous current L3"] =                     atof(getMapData(data,"1-0:71.7.0").c_str());
+  n["Instantaneous active power L1 (+P)"] =           atof(getMapData(data,"1-0:21.7.0").c_str());
+  n["Instantaneous active power L2 (+P)"] =           atof(getMapData(data,"1-0:41.7.0").c_str());
+  n["Instantaneous active power L3 (+P)"] =           atof(getMapData(data,"1-0:61.7.0").c_str());
+  n["Instantaneous active power L1 (-P)"] =           atof(getMapData(data,"1-0:22.7.0").c_str());
+  n["Instantaneous active power L2 (-P)"] =           atof(getMapData(data,"1-0:42.7.0").c_str());
+  n["Instantaneous active power L3 (-P)"] =           atof(getMapData(data,"1-0:62.7.0").c_str());
 
   doc["id"] = SENSORID;
   doc["measurements"] = array;
   
-
+  
   char retval[2048];
 
   serializeJson(doc, retval);
