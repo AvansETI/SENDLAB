@@ -182,7 +182,7 @@ while( 1 ):
 
         data = {
             "id": sensorId,
-            "measurements": {
+            "measurements": [{
                 "timestamp": datetime.now().isoformat(),
                 "Spaceheating target temperature": spaceTargetTemp,
                 "Spaceheating operation mode": spaceOpMode,
@@ -194,7 +194,7 @@ while( 1 ):
                 "Watertank temperature": sensorTankTemp,
                 "Watertank target temperature": opTankTargetTemp,
                 "Watertank operation mode": opModeWaterTank
-            }
+            }]
         }
 
         sendlab.publish("node/data", json.dumps(data))
