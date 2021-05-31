@@ -61,25 +61,25 @@ def on_message_localhost(client, userdata, msg):
     if category == "spaceheating":
         if value == "operation-targettemperature":
             global spaceTargetTemp
-            spaceTargetTemp = msg.payload
+            spaceTargetTemp = float(msg.payload)
         if value == "operation-operationmode":
             global spaceOpMode
             spaceOpMode = msg.payload
         if value == "operation-roomtemperatureauto":
             global spaceRoomTempAuto
-            spaceRoomTempAuto = msg.payload
+            spaceRoomTempAuto = float(msg.payload)
         if value == "operation-roomtemperaturecooling":
             global spaceRoomTempCooling
-            spaceRoomTempCooling = msg.payload
+            spaceRoomTempCooling = float(msg.payload)
         if value == "operation-roomtemperatureheating":
             global spaceRoomTempHeating
-            spaceRoomTempHeating = msg.payload
+            spaceRoomTempHeating = float(msg.payload)
         if value == "sensor-indoortemperature":
             global spaceSensIndoorTemp
-            spaceSensIndoorTemp = msg.payload
+            spaceSensIndoorTemp = float(msg.payload)
         if value == "sensor-outdoortemperature":
             global spaceSensOutdoorTemp
-            spaceSensOutdoorTemp = msg.payload
+            spaceSensOutdoorTemp = float(msg.payload)
         if value == "consumption":
             global spaceheatingConsumption
             spaceheatingConsumption = msg.payload
@@ -87,10 +87,10 @@ def on_message_localhost(client, userdata, msg):
     if category == "domestichotwatertank":
         if value == "sensor-tanktemperature":
             global sensorTankTemp
-            sensorTankTemp = msg.payload
+            sensorTankTemp =float(msg.payload)
         if value == "operation-targettemperature":
             global opTankTargetTemp
-            opTankTargetTemp = msg.payload
+            opTankTargetTemp = float(msg.payload)
         if value == "operation-operationmode":
             global opModeWaterTank
             opModeWaterTank = msg.payload
