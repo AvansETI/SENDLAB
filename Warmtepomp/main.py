@@ -54,4 +54,5 @@ while( 1 ):
 
     timediff = time.localtime() - timestamp
     if ( timediff.seconds > 10 ):
+        print(time.localtime())
         timestamp = time.localtime()
