@@ -31,7 +31,7 @@ def on_connect_localhost(client, userdata, flags, rc):
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
+    #print(msg.topic+" "+str(msg.payload))
 
 
 localhost.on_connect = on_connect_localhost
