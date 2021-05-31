@@ -197,5 +197,5 @@ while( 1 ):
             }
         }
 
-        print(json.dumps(data))
+        sendlab.publish("node/data", json.dumps(data))
         timestamp = datetime.now()
