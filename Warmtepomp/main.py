@@ -17,7 +17,7 @@ def on_connect_sendlab(client, userdata, flags, rc):
 
 def on_connect_localhost(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
-    print("Pi Connected at: " + datetime.now())
+    print("Pi Connected at: " + datetime.now().isoformat())
 
     client.subscribe("homie/daikin-heatingunit/spaceheating/1-operation-targettemperature")
     client.subscribe("homie/daikin-heatingunit/spaceheating/1-sensor-indoortemperature")
@@ -162,5 +162,5 @@ while( 1 ):
             }
         }
 
-        print(datetime.now())
+        print(datetime.now().isoformat())
         timestamp = datetime.now()
