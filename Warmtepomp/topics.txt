@@ -6,6 +6,7 @@ homie/daikin-heatingunit/spaceheating/1-operation-roomtemperatureauto
 homie/daikin-heatingunit/spaceheating/1-operation-roomtemperaturecooling
 homie/daikin-heatingunit/spaceheating/1-operation-roomtemperatureheating
 homie/daikin-heatingunit/spaceheating/1-consumption
+homie/daikin-heatingunit/spaceheating/1-operation-operationmode
 
 domestic hot water tank
 homie/daikin-heatingunit/domestichotwatertank/2-sensor-tanktemperature
