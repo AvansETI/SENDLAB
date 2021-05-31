@@ -153,7 +153,7 @@ while( 1 ):
     sendlab.loop()
 
     timediff = datetime.now() - timestamp
-    if ( timediff > 60 ):
+    if ( timediff.seconds > 60 ):
 
         data = {
             "id": sensorId,
