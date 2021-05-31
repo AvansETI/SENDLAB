@@ -5,6 +5,19 @@ import time
 
 sensorId = "SENDLAB_WARMTEPOMP"
 
+spaceTargetTemp = 0
+spaceOpMode = ""
+spaceRoomTempAuto = 0
+spaceRoomTempCooling = 0
+spaceRoomTempHeating = 0
+spaceSensIndoorTemp = 0
+spaceSensOutdoorTemp = 0
+spaceheatingConsumption = ""
+sensorTankTemp = 0
+opTankTargetTemp = 0
+opModeWaterTank = ""
+waterTankConsumption = ""
+
 localhost = mqtt.Client("test")
 sendlab = mqtt.Client()
 
@@ -47,19 +60,19 @@ def on_message_localhost(client, userdata, msg):
     
     if category == "spaceheating":
         if value == "operation-targettemperature":
-            opTargetTemp = msg.payload
+            spaceTargetTemp = msg.payload
         if value == "operation-operationmode":
-            opModeSpaceHeating = msg.payload
+            spaceOpMode = msg.payload
         if value == "operation-roomtemperatureauto":
-            opRoomTempAuto = msg.payload
+            spaceRoomTempAuto = msg.payload
         if value == "operation-roomtemperaturecooling":
-            opRoomTempCooling = msg.payload
+            spaceRoomTempCooling = msg.payload
         if value == "operation-roomtemperatureheating":
-            opRoomTempHeating = msg.payload
+            spaceRoomTempHeating = msg.payload
         if value == "sensor-indoortemperature":
-            sensIndoorTemp = msg.payload
+            spaceSensIndoorTemp = msg.payload
         if value == "sensor-outdoortemperature":
-            sensOutdoorTemp = msg.payload
+            spaceSensOutdoorTemp = msg.payload
         if value == "consumption":
             spaceheatingConsumption = msg.payload
          
@@ -158,9 +171,19 @@ while( 1 ):
         data = {
             "id": sensorId,
             "measurements": {
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
+                "Spaceheating target temperature": spaceTargetTemp,
+                "Spaceheating operation mode": spaceOpMode,
+                "Spaceheating room temperature auto": spaceRoomTempAuto,
+                "Spaceheating room temperature cooling": spaceRoomTempCooling,
+                "Spaceheating room temperature heating": spaceRoomTempHeating,
+                "Spaceheating indoor temperature": spaceSensIndoorTemp,
+                "Spaceheating outdoor temperature": spaceSensOutdoorTemp,
+                "Watertank temperature": sensorTankTemp,
+                "Watertank target temperature": opTankTargetTemp,
+                "Watertank operation mode": opModeWaterTank
             }
         }
 
-        print(datetime.now().isoformat())
+        print(json.dumps(data))
         timestamp = datetime.now()
