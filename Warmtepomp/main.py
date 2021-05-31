@@ -170,7 +170,7 @@ sendlab.username_pw_set("node", password="smartmeternode")
 sendlab.connect("sendlab.nl", 11884, 60)
 
 print("Sending Init message")
-#sendlab.publish("node/init", json.dumps(sensorInit))
+sendlab.publish("node/init", json.dumps(sensorInit))
 
 timestamp = datetime.now()
 while( 1 ):
