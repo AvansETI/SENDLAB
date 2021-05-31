@@ -1,14 +1,15 @@
 space heating
 homie/daikin-heatingunit/spaceheating/1-operation-targettemperature
-homie/daikin-heatingunit/spaceheating/1-sensor-indoortemperature
-homie/daikin-heatingunit/spaceheating/1-sensor-outdoortemperature
+homie/daikin-heatingunit/spaceheating/1-operation-operationmode
 homie/daikin-heatingunit/spaceheating/1-operation-roomtemperatureauto
 homie/daikin-heatingunit/spaceheating/1-operation-roomtemperaturecooling
 homie/daikin-heatingunit/spaceheating/1-operation-roomtemperatureheating
+homie/daikin-heatingunit/spaceheating/1-sensor-indoortemperature
+homie/daikin-heatingunit/spaceheating/1-sensor-outdoortemperature
 homie/daikin-heatingunit/spaceheating/1-consumption
-homie/daikin-heatingunit/spaceheating/1-operation-operationmode
 
 domestic hot water tank
 homie/daikin-heatingunit/domestichotwatertank/2-sensor-tanktemperature
 homie/daikin-heatingunit/domestichotwatertank/2-operation-targettemperature
+homie/daikin-heatingunit/domestichotwatertank/2-operation-operationmode
 homie/daikin-heatingunit/domestichotwatertank/2-consumption
