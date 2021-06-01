@@ -87,7 +87,7 @@ def on_message_localhost(client, userdata, msg):
     if category == "domestichotwatertank":
         if value == "sensor-tanktemperature":
             global sensorTankTemp
-            sensorTankTemp =float(msg.payload)
+            sensorTankTemp = float(msg.payload)
         if value == "operation-targettemperature":
             global opTankTargetTemp
             opTankTargetTemp = float(msg.payload)
@@ -105,51 +105,51 @@ sensorInit = {
     "name": "SENDLAB Warmtepomp",
     "measurements": [
         {
-            "name": "Spaceheating target temperature",
+            "name": "targTemp_sh",
             "description": "Target temperature for SENDLAB heating/cooling",
             "unit": "degree of Celsius"
         }, {
-            "name": "Spaceheating operation mode",
+            "name": "opMode_sh",
             "description": "Spaceheating operation mode",
             "unit": "enum"
         }, {
-            "name": "Spaceheating room temperature auto",
+            "name": "roomTempAuto_sh",
             "description": "Spaceheating set temperature for auto mode",
             "unit": "degree of Celsius"
         }, {
-            "name": "Spaceheating room temperature cooling",
+            "name": "roomTempCool_sh",
             "description": "Spaceheating set temperature for cooling mode",
             "unit": "degree of Celsius"
         }, {
-            "name": "Spaceheating room temperature heating",
+            "name": "roomTempHeat_sh",
             "description": "Spaceheating set temperature for heating mode",
             "unit": "degree of Celsius"
         }, {
-            "name": "Spaceheating indoor temperature",
+            "name": "indoorTemp_sh",
             "description": "Spaceheating indoor temperature sensor readings",
             "unit": "degree of Celsius"
         }, {
-            "name": "Spaceheating outdoor temperature",
+            "name": "outdoorTemp_sh",
             "description": "Spaceheating outdoor temperature sensor readings",
             "unit": "degree of Celsius"
         }, {
-            "name": "Spaceheating electricity consumption",
-            "description": "Spaceheating eclectricity consumption from last 2h",
+            "name": "consumption_sh",
+            "description": "Spaceheating electricity consumption from last 2h",
             "unit": "kW"
         }, {
-            "name": "Watertank temperature",
+            "name": "temp_tank",
             "description": "Watertank temperature",
             "unit": "degree of Celsius"
         }, {
-            "name": "Watertank target temperature",
+            "name": "targTemp_tank",
             "description": "Watertank target temperature",
             "unit": "degree of Celsius"
         }, {
-            "name": "Watertank operation mode",
+            "name": "opMode_tank",
             "description": "Watertank operation mode",
             "unit": "enum"
         }, {
-            "name": "Watertank electricity consumption",
+            "name": "consumption_tank",
             "description": "Watertank eclectricity consumption from last 2h",
             "unit": "kW"
         }
@@ -184,16 +184,16 @@ while( 1 ):
             "id": sensorId,
             "measurements": [{
                 "timestamp": datetime.now().isoformat(),
-                "Spaceheating target temperature": spaceTargetTemp,
-                "Spaceheating operation mode": spaceOpMode,
-                "Spaceheating room temperature auto": spaceRoomTempAuto,
-                "Spaceheating room temperature cooling": spaceRoomTempCooling,
-                "Spaceheating room temperature heating": spaceRoomTempHeating,
-                "Spaceheating indoor temperature": spaceSensIndoorTemp,
-                "Spaceheating outdoor temperature": spaceSensOutdoorTemp,
-                "Watertank temperature": sensorTankTemp,
-                "Watertank target temperature": opTankTargetTemp,
-                "Watertank operation mode": opModeWaterTank
+                "targTemp_sh": spaceTargetTemp,
+                "opMode_sh": spaceOpMode,
+                "roomTempAuto_sh": spaceRoomTempAuto,
+                "roomTempCool_sh": spaceRoomTempCooling,
+                "roomTempHeat_sh": spaceRoomTempHeating,
+                "indoorTemp_sh": spaceSensIndoorTemp,
+                "outdoorTemp_sh": spaceSensOutdoorTemp,
+                "temp_tank": sensorTankTemp,
+                "targTemp_tank": opTankTargetTemp,
+                "opMode_tank": opModeWaterTank
             }]
         }
 
