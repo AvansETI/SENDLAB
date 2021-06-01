@@ -1,7 +1,7 @@
 from datetime import datetime
 import paho.mqtt.client as mqtt
 import json
-import time
+import math
 
 sensorId = "SENDLAB_WARMTEPOMP"
 
@@ -184,15 +184,15 @@ while( 1 ):
             "id": sensorId,
             "measurements": [{
                 "timestamp": datetime.now().isoformat(),
-                "targTemp_sh": spaceTargetTemp,
+                "targTemp_sh": math.fabs(spaceTargetTemp),
                 "opMode_sh": spaceOpMode,
-                "roomTempAuto_sh": spaceRoomTempAuto,
-                "roomTempCool_sh": spaceRoomTempCooling,
-                "roomTempHeat_sh": spaceRoomTempHeating,
-                "indoorTemp_sh": spaceSensIndoorTemp,
-                "outdoorTemp_sh": spaceSensOutdoorTemp,
-                "temp_tank": sensorTankTemp,
-                "targTemp_tank": opTankTargetTemp,
+                "roomTempAuto_sh": math.fabs(spaceRoomTempAuto),
+                "roomTempCool_sh": math.fabs(spaceRoomTempCooling),
+                "roomTempHeat_sh": math.fabs(spaceRoomTempHeating),
+                "indoorTemp_sh": math.fabs(spaceSensIndoorTemp),
+                "outdoorTemp_sh": math.fabs(spaceSensOutdoorTemp),
+                "temp_tank": math.fabs(sensorTankTemp),
+                "targTemp_tank": math.fabs(opTankTargetTemp),
                 "opMode_tank": opModeWaterTank
             }]
         }
