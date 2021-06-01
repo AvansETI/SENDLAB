@@ -42,142 +42,137 @@ std::string createInit(){
   n["unit"] = "timestamp";
 
   JsonObject n1 = array.createNestedObject();
-  n1["name"] = "Electricity delivered to client (Tariff 1)";
+  n1["name"] = "E_deliv_to_T1";
   n1["description"] = "Meter Reading electricity delivered to client (Tariff 1) in 0,001 kWh. OBIS-ref: 1-0:1.8.1.255";
   n1["unit"] = "0,001 kWh";
 
   JsonObject n2 = array.createNestedObject();
-  n2["name"] = "Electricity delivered to client (Tariff 2)";
+  n2["name"] = "E_deliv_to_T2";
   n2["description"] = "Meter Reading electricity delivered to client (Tariff 2) in 0,001 kWh. OBIS-ref: 1-0:1.8.2.255";
   n2["unit"] = "0,001 kWh";
 
   JsonObject n3 = array.createNestedObject();
-  n3["name"] = "Electricity delivered by client (Tariff 1)";
+  n3["name"] = "E_deliv_by_T1";
   n3["description"] = "Meter Reading electricity delivered by client (Tariff 1) in 0,001 kWh. OBIS-ref: 1-0:2.8.1.255";
   n3["unit"] = "0,001 kWh";
 
   JsonObject n4 = array.createNestedObject();
-  n4["name"] = "Electricity delivered by client (Tariff 2)";
+  n4["name"] = "E_deliv_by_T2";
   n4["description"] = "Meter Reading electricity delivered by client (Tariff 2) in 0,001 kWh. OBIS-ref: 1-0:2.8.2.255";
   n4["unit"] = "0,001 kWh";
 
   JsonObject n5 = array.createNestedObject();
-  n5["name"] = "Tariff indicator electricity";
+  n5["name"] = "E_Tariff_indic";
   n5["description"] = "Tariff indicator elec-tricity. The tariffin-dicator can also be used to switch tariffdependent loads e.g boilers. OBIS-ref: 0-0:96.14.0.255";
   n5["unit"] = "indicator";
 
   JsonObject n6 = array.createNestedObject();
-  n6["name"] = "Actual electricity power delivered";
+  n6["name"] = "E_act_deliv";
   n6["description"] = "Actual electricity power delivered (+P) in 1 Watt resolution. OBIS-ref: 1-0:1.7.0.255";
   n6["unit"] = "W";
 
   JsonObject n7 = array.createNestedObject();
-  n7["name"] = "Actual electricity power received";
+  n7["name"] = "E_act_receiv";
   n7["description"] = "Actual electricity power received (-P) in 1 Watt resolution. OBIS-ref: 1-0:2.7.0.255";
   n7["unit"] = "W";
 
-  JsonObject n8 = array.createNestedObject();
-  n8["name"] = "Instantaneous voltage L1";
-  n8["description"] = "Instantaneous voltage L1 in V resolution. OBIS-ref: 1-0:32.7.0.255";
-  n8["unit"] = "V";
-
   JsonObject n9 = array.createNestedObject();
-  n9["name"] = "Number of power failures";
+  n9["name"] = "Nr_pow_fails";
   n9["description"] = "Number of power failures in any phase. OBIS-ref: 1-0:96.7.21.255";
   n9["unit"] = "";
 
   JsonObject n10 = array.createNestedObject();
-  n10["name"] = "Number of long power failures";
+  n10["name"] = "Nr_long_pow_fails";
   n10["description"] = "Number of long power failures in any phase. OBIS-ref: 1-0:96.7.9.255";
   n10["unit"] = "";
 
   JsonObject n11 = array.createNestedObject();
-  n11["name"] = "Number of voltage sags L1";
+  n11["name"] = "Nr_v_sags_L1";
   n11["description"] = "Number of voltage sags in phase L1. OBIS-ref: 1-0:32.32.0.255";
   n11["unit"] = "";
 
   JsonObject n12 = array.createNestedObject();
-  n12["name"] = "Number of voltage sags L2";
+  n12["name"] = "Nr_v_sags_L2";
   n12["description"] = "Number of voltage sags in phase L2. OBIS-ref: 1-0:52.32.0.255";
   n12["unit"] = "";
 
   JsonObject n13 = array.createNestedObject();
-  n13["name"] = "Number of voltage sags L3";
+  n13["name"] = "Nr_v_sags_L3";
   n13["description"] = "Number of voltage sags in phase L3. OBIS-ref: 1-0:72.32.0.255";
   n13["unit"] = "";
 
   JsonObject n14 = array.createNestedObject();
-  n14["name"] = "Number of voltage swells L1";
+  n14["name"] = "Nr_v_swells_L1";
   n14["description"] = "Number of voltage swells in phase L1. OBIS-ref: 1-0:32.32.0.255";
   n14["unit"] = "";
 
   JsonObject n15 = array.createNestedObject();
-  n15["name"] = "Number of voltage swells L2";
+  n15["name"] = "Nr_v_swells_L2";
   n15["description"] = "Number of voltage swells in phase L2. OBIS-ref: 1-0:52.32.0.255";
   n15["unit"] = "";
 
   JsonObject n16 = array.createNestedObject();
-  n16["name"] = "Number of voltage swells L3";
+  n16["name"] = "Nr_v_swells_L3";
   n16["description"] = "Number of voltage swells in phase L3. OBIS-ref: 1-0:72.32.0.255";
   n16["unit"] = "";
 
   JsonObject n77 = array.createNestedObject();
-  n77["name"] = "Instantaneous voltage L1";
+  n77["name"] = "Inst_volt_L1";
   n77["description"] = "Instantaneous voltage L1 in V resolution. OBIS-ref: 1-0:32.7.0.255";
   n77["unit"] = "V";
 
   JsonObject n17 = array.createNestedObject();
-  n17["name"] = "Instantaneous voltage L2";
+  n17["name"] = "Inst_volt_L2";
   n17["description"] = "Instantaneous voltage L2 in V resolution. OBIS-ref: 1-0:52.7.0.255";
   n17["unit"] = "V";
 
   JsonObject n18 = array.createNestedObject();
-  n18["name"] = "Instantaneous voltage L3";
+  n18["name"] = "Inst_volt_L3";
   n18["description"] = "Instantaneous voltage L3 in V resolution. OBIS-ref: 1-0:72.7.0.255";
   n18["unit"] = "V";
 
   JsonObject n19 = array.createNestedObject();
-  n19["name"] = "Instantaneous current L1";
+  n19["name"] = "Inst_curr_L1";
   n19["description"] = "Instantaneous current L1 in A resolution. OBIS-ref: 1-0:31.7.0.255";
   n19["unit"] = "A";
 
   JsonObject n20 = array.createNestedObject();
-  n20["name"] = "Instantaneous current L2";
+  n20["name"] = "Inst_curr_L2";
   n20["description"] = "Instantaneous current L2 in A resolution. OBIS-ref: 1-0:51.7.0.255";
   n20["unit"] = "A";
 
   JsonObject n21 = array.createNestedObject();
-  n21["name"] = "Instantaneous current L3";
+  n21["name"] = "Inst_curr_L3";
   n21["description"] = "Instantaneous current L3 in A resolution. OBIS-ref: 1-0:71.7.0.255";
   n21["unit"] = "A";
 
   JsonObject n22 = array.createNestedObject();
-  n22["name"] = "Instantaneous active power L1 (+P)";
+  n22["name"] = "Inst_act_pow_L1_+P";
   n22["description"] = "Instantaneous active power L1 (+P) in W resolution. OBIS-ref: 1-0:21.7.0.255";
   n22["unit"] = "KW";
 
   JsonObject n23 = array.createNestedObject();
-  n23["name"] = "Instantaneous active power L2 (+P)";
+  n23["name"] = "Inst_act_pow_L2_+P";
   n23["description"] = "Instantaneous active power L2 (+P) in W resolution. OBIS-ref: 1-0:41.7.0.255";
   n23["unit"] = "KW";
 
   JsonObject n24 = array.createNestedObject();
-  n24["name"] = "Instantaneous active power L3 (+P)";
+  n24["name"] = "Inst_act_pow_L3_+P";
   n24["description"] = "Instantaneous active power L3 (+P) in W resolution. OBIS-ref: 1-0:61.7.0.255";
   n24["unit"] = "KW";
 
   JsonObject n25 = array.createNestedObject();
-  n25["name"] = "Instantaneous active power L1 (-P)";
+  n25["name"] = "Inst_act_pow_L1_-P";
   n25["description"] = "Instantaneous active power L1 (-P) in W resolution. OBIS-ref: 1-0:22.7.0.255";
   n25["unit"] = "KW";
 
   JsonObject n26 = array.createNestedObject();
-  n26["name"] = "Instantaneous active power L2 (-P)";
+  n26["name"] = "Inst_act_pow_L2_-P";
   n26["description"] = "Instantaneous active power L2 (-P) in W resolution. OBIS-ref: 1-0:42.7.0.255";
   n26["unit"] = "KW";
 
   JsonObject n27 = array.createNestedObject();
-  n27["name"] = "Instantaneous active power L3 (-P)";
+  n27["name"] = "Inst_act_pow_L3_-P";
   n27["description"] = "Instantaneous active power L3 (-P) in W resolution. OBIS-ref: 1-0:62.7.0.255";
   n27["unit"] = "KW";
 
@@ -326,33 +321,33 @@ char* parseToJson(char buffer[P1_MAX_DATAGRAM_SIZE]){
 
   n["timestamp"] =                                    parseTime(getMapData(data, "0-0:1.0.0").c_str()).c_str();
   //n["timestamp"] =                                    ntp.getEpochTime();
-  n["Electricity delivered to client (Tariff 1)"] =   atof(getMapData(data,"1-0:1.8.1").c_str());
-  n["Electricity delivered to client (Tariff 2)"] =   atof(getMapData(data,"1-0:1.8.2").c_str());
-  n["Electricity delivered by client (Tariff 1)"] =   atof(getMapData(data,"1-0:2.8.1").c_str());
-  n["Electricity delivered by client (Tariff 2)"] =   atof(getMapData(data,"1-0:2.8.2").c_str());
-  n["Tariff indicator electricity"] =                 atof(getMapData(data,"0-0:96.14.0").c_str());
-  n["Actual electricity power delivered"] =           atof(getMapData(data,"1-0:1.7.0").c_str());
-  n["Actual electricity power received"] =            atof(getMapData(data,"1-0:2.7.0").c_str());
-  n["Number of power failures"] =                     atof(getMapData(data,"1-0:96.7.21").c_str());
-  n["Number of long power failures"] =                atof(getMapData(data,"1-0:96.7.9").c_str());
-  n["Number of voltage sags L1"] =                    atof(getMapData(data,"1-0:32.32.0").c_str());
-  n["Number of voltage sags L2"] =                    atof(getMapData(data,"1-0:52.32.0").c_str());
-  n["Number of voltage sags L3"] =                    atof(getMapData(data,"1-0:72.32.0").c_str());
-  n["Number of voltage swells L1"] =                  atof(getMapData(data,"1-0:32.32.0").c_str());
-  n["Number of voltage swells L2"] =                  atof(getMapData(data,"1-0:52.32.0").c_str());
-  n["Number of voltage swells L3"] =                  atof(getMapData(data,"1-0:72.32.0").c_str());
-  n["Instantaneous voltage L1"] =                     atof(getMapData(data,"1-0:32.7.0").c_str());
-  n["Instantaneous voltage L2"] =                     atof(getMapData(data,"1-0:52.7.0").c_str());
-  n["Instantaneous voltage L3"] =                     atof(getMapData(data,"1-0:72.7.0").c_str());
-  n["Instantaneous current L1"] =                     atof(getMapData(data,"1-0:31.7.0").c_str());
-  n["Instantaneous current L2"] =                     atof(getMapData(data,"1-0:51.7.0").c_str());
-  n["Instantaneous current L3"] =                     atof(getMapData(data,"1-0:71.7.0").c_str());
-  n["Instantaneous active power L1 (+P)"] =           atof(getMapData(data,"1-0:21.7.0").c_str());
-  n["Instantaneous active power L2 (+P)"] =           atof(getMapData(data,"1-0:41.7.0").c_str());
-  n["Instantaneous active power L3 (+P)"] =           atof(getMapData(data,"1-0:61.7.0").c_str());
-  n["Instantaneous active power L1 (-P)"] =           atof(getMapData(data,"1-0:22.7.0").c_str());
-  n["Instantaneous active power L2 (-P)"] =           atof(getMapData(data,"1-0:42.7.0").c_str());
-  n["Instantaneous active power L3 (-P)"] =           atof(getMapData(data,"1-0:62.7.0").c_str());
+  n["E_deliv_to_T1"] =   atof(getMapData(data,"1-0:1.8.1").c_str());
+  n["E_deliv_to_T2"] =   atof(getMapData(data,"1-0:1.8.2").c_str());
+  n["E_deliv_by_T1"] =   atof(getMapData(data,"1-0:2.8.1").c_str());
+  n["E_deliv_by_T2"] =   atof(getMapData(data,"1-0:2.8.2").c_str());
+  n["E_Tariff_indic"] =                 atof(getMapData(data,"0-0:96.14.0").c_str());
+  n["E_act_deliv"] =           atof(getMapData(data,"1-0:1.7.0").c_str());
+  n["E_act_receiv"] =            atof(getMapData(data,"1-0:2.7.0").c_str());
+  n["Nr_pow_fails"] =                     atof(getMapData(data,"1-0:96.7.21").c_str());
+  n["Nr_long_pow_fails"] =                atof(getMapData(data,"1-0:96.7.9").c_str());
+  n["Nr_v_sags_L1"] =                    atof(getMapData(data,"1-0:32.32.0").c_str());
+  n["Nr_v_sags_L2"] =                    atof(getMapData(data,"1-0:52.32.0").c_str());
+  n["Nr_v_sags_L3"] =                    atof(getMapData(data,"1-0:72.32.0").c_str());
+  n["Nr_v_swells_L1"] =                  atof(getMapData(data,"1-0:32.32.0").c_str());
+  n["Nr_v_swells_L2"] =                  atof(getMapData(data,"1-0:52.32.0").c_str());
+  n["Nr_v_swells_L3"] =                  atof(getMapData(data,"1-0:72.32.0").c_str());
+  n["Inst_volt_L1"] =                     atof(getMapData(data,"1-0:32.7.0").c_str());
+  n["Inst_volt_L2"] =                     atof(getMapData(data,"1-0:52.7.0").c_str());
+  n["Inst_volt_L3"] =                     atof(getMapData(data,"1-0:72.7.0").c_str());
+  n["Inst_curr_L1"] =                     atof(getMapData(data,"1-0:31.7.0").c_str());
+  n["Inst_curr_L2"] =                     atof(getMapData(data,"1-0:51.7.0").c_str());
+  n["Inst_curr_L3"] =                     atof(getMapData(data,"1-0:71.7.0").c_str());
+  n["Inst_act_pow_L1_+P"] =           atof(getMapData(data,"1-0:21.7.0").c_str());
+  n["Inst_act_pow_L2_+P"] =           atof(getMapData(data,"1-0:41.7.0").c_str());
+  n["Inst_act_pow_L3_+P"] =           atof(getMapData(data,"1-0:61.7.0").c_str());
+  n["Inst_act_pow_L1_-P"] =           atof(getMapData(data,"1-0:22.7.0").c_str());
+  n["Inst_act_pow_L2_-P"] =           atof(getMapData(data,"1-0:42.7.0").c_str());
+  n["Inst_act_pow_L3_-P"] =           atof(getMapData(data,"1-0:62.7.0").c_str());
 
   doc["id"] = SENSORID;
   doc["measurements"] = array;
