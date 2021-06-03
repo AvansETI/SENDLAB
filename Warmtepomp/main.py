@@ -83,6 +83,7 @@ def on_message_localhost(client, userdata, msg):
         if value == "consumption":
             global spaceheatingConsumption
             spaceheatingConsumption = msg.payload
+            print(spaceheatingConsumption)
          
     if category == "domestichotwatertank":
         if value == "sensor-tanktemperature":
@@ -97,6 +98,7 @@ def on_message_localhost(client, userdata, msg):
         if value == "consumption":
             global waterTankConsumption
             waterTankConsumption = msg.payload
+            print(waterTankConsumption)
 
 sensorInit = {
     "mode": 0,
