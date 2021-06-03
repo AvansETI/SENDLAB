@@ -5,18 +5,6 @@ import math
 
 sensorId = "SENDLAB_WARMTEPOMP"
 
-spaceOpMode = ""
-spaceRoomTempAuto = 0
-spaceRoomTempCooling = 0
-spaceRoomTempHeating = 0
-spaceSensIndoorTemp = 0
-spaceSensOutdoorTemp = 0
-spaceheatingConsumption = ""
-sensorTankTemp = 0
-opTankTargetTemp = 0
-opModeWaterTank = ""
-waterTankConsumption = ""
-
 localhost = mqtt.Client("test")
 sendlab = mqtt.Client()
 
@@ -49,6 +37,43 @@ def on_connect_localhost(client, userdata, flags, rc):
 def on_message_sendlab(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
     
+def handleConsumptionSpaceheating():
+    obj = json.loads(spaceheatingConsumption)
+    heating = obj["Heating"]
+    cooling = obj["Cooling"]
+    data = {
+            "id": sensorId,
+            "measurements": [{
+                "timestamp": datetime.now().isoformat(),
+                "cons_cool_sh": getLastConsumption(cooling["D"]),
+                "cons_heat_sh": getLastConsumption(heating["D"])
+            }]
+        }
+
+    sendlab.publish("node/data", json.dumps(data))
+    print(json.dumps(data))
+
+def handleConsumptionWatertank():
+    obj = json.loads(waterTankConsumption)
+    heating = obj["Heating"]
+    data = {
+            "id": sensorId,
+            "measurements": [{
+                "timestamp": datetime.now().isoformat(),
+                "consumption_tank": getLastConsumption(heating["D"])
+            }]
+        }
+
+    sendlab.publish("node/data", json.dumps(data))
+    print(json.dumps(data))
+    
+
+def getLastConsumption(array):
+    last = array[0]
+    for e in array:
+        if e == None:
+            return last
+        last = e
 
 def on_message_localhost(client, userdata, msg):
     #print(msg.topic+" "+str(msg.payload))
@@ -56,8 +81,6 @@ def on_message_localhost(client, userdata, msg):
     category = topic[:12]
     value = topic[15:]
 
-    
-    
     if category == "spaceheating":
         if value == "operation-targettemperature":
             global spaceTargetTemp
@@ -83,7 +106,7 @@ def on_message_localhost(client, userdata, msg):
         if value == "consumption":
             global spaceheatingConsumption
             spaceheatingConsumption = msg.payload
-            print(spaceheatingConsumption)
+            handleConsumptionSpaceheating()
          
     if category == "domestichotwatertank":
         if value == "sensor-tanktemperature":
@@ -98,7 +121,7 @@ def on_message_localhost(client, userdata, msg):
         if value == "consumption":
             global waterTankConsumption
             waterTankConsumption = msg.payload
-            print(waterTankConsumption)
+            handleConsumptionWatertank()
 
 sensorInit = {
     "mode": 0,
@@ -135,8 +158,12 @@ sensorInit = {
             "description": "Spaceheating outdoor temperature sensor readings",
             "unit": "degree of Celsius"
         }, {
-            "name": "consumption_sh",
-            "description": "Spaceheating electricity consumption from last 2h",
+            "name": "cons_cool_sh",
+            "description": "Spaceheating Cooling electricity consumption from last 2h",
+            "unit": "kW"
+        }, {
+            "name": "cons_heat_sh",
+            "description": "Spaceheating Heating electricity consumption from last 2h",
             "unit": "kW"
         }, {
             "name": "temp_tank",
