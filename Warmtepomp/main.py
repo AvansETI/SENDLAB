@@ -37,8 +37,8 @@ def on_connect_localhost(client, userdata, flags, rc):
 def on_message_sendlab(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
     
-def handleConsumptionSpaceheating():
-    obj = json.loads(spaceheatingConsumption)
+def handleConsumptionSpaceheating(payload):
+    obj = json.loads(payload)
     heating = obj["Heating"]
     cooling = obj["Cooling"]
     data = {
@@ -53,8 +53,8 @@ def handleConsumptionSpaceheating():
     sendlab.publish("node/data", json.dumps(data))
     print(json.dumps(data))
 
-def handleConsumptionWatertank():
-    obj = json.loads(waterTankConsumption)
+def handleConsumptionWatertank(payload):
+    obj = json.loads(payload)
     heating = obj["Heating"]
     data = {
             "id": sensorId,
@@ -104,9 +104,7 @@ def on_message_localhost(client, userdata, msg):
             global spaceSensOutdoorTemp
             spaceSensOutdoorTemp = float(msg.payload)
         if value == "consumption":
-            global spaceheatingConsumption
-            spaceheatingConsumption = msg.payload
-            handleConsumptionSpaceheating()
+            handleConsumptionSpaceheating(msg.payload)
          
     if category == "domestichotwatertank":
         if value == "sensor-tanktemperature":
@@ -119,9 +117,7 @@ def on_message_localhost(client, userdata, msg):
             global opModeWaterTank
             opModeWaterTank = msg.payload
         if value == "consumption":
-            global waterTankConsumption
-            waterTankConsumption = msg.payload
-            handleConsumptionWatertank()
+            handleConsumptionWatertank(msg.payload)
 
 sensorInit = {
     "mode": 0,
