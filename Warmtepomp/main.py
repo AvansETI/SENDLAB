@@ -5,6 +5,18 @@ import math
 
 sensorId = "SENDLAB_WARMTEPOMP"
 
+spaceOpMode = ""
+spaceRoomTempAuto = 0
+spaceRoomTempCooling = 0
+spaceRoomTempHeating = 0
+spaceSensIndoorTemp = 0
+spaceSensOutdoorTemp = 0
+spaceheatingConsumption = ""
+sensorTankTemp = 0
+opTankTargetTemp = 0
+opModeWaterTank = ""
+waterTankConsumption = ""
+
 localhost = mqtt.Client("test")
 sendlab = mqtt.Client()
 
