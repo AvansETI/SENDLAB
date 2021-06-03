@@ -297,6 +297,14 @@ std::string getMapData(std::map<std::string, std::string> map, std::string key){
   return "null";
 }
 
+double getMapDataDouble(std::map<std::string, std::string> map, std::string key){
+  auto i = map.find(key);
+  if(i != map.end()){
+    return  std::strtod(i->second.c_str(), NULL);
+  }
+  return NULL;
+}
+
 std::string parseTime(std::string time){
   //YYMMDDhhmmss 201225084523W
   //2021-05-20T06:35:31  2020-12-25T09:02:27
@@ -321,33 +329,33 @@ char* parseToJson(char buffer[P1_MAX_DATAGRAM_SIZE]){
 
   n["timestamp"] =                                    parseTime(getMapData(data, "0-0:1.0.0").c_str()).c_str();
   //n["timestamp"] =                                    ntp.getEpochTime();
-  n["E_deliv_to_T1"] =                    std::strtod(getMapData(data,"1-0:1.8.1").c_str(), NULL);
-  n["E_deliv_to_T2"] =                    std::strtod(getMapData(data,"1-0:1.8.2").c_str(), NULL);
-  n["E_deliv_by_T1"] =                    std::strtod(getMapData(data,"1-0:2.8.1").c_str(), NULL);
-  n["E_deliv_by_T2"] =                    std::strtod(getMapData(data,"1-0:2.8.2").c_str(), NULL);
-  n["E_Tariff_indic"] =                   std::strtod(getMapData(data,"0-0:96.14.0").c_str(), NULL);
-  n["E_act_deliv"] =                      std::strtod(getMapData(data,"1-0:1.7.0").c_str(), NULL);
-  n["E_act_receiv"] =                     std::strtod(getMapData(data,"1-0:2.7.0").c_str(), NULL);
-  n["Nr_pow_fails"] =                     std::strtod(getMapData(data,"1-0:96.7.21").c_str(), NULL);
-  n["Nr_long_pow_fails"] =                std::strtod(getMapData(data,"1-0:96.7.9").c_str(), NULL);
-  n["Nr_v_sags_L1"] =                     std::strtod(getMapData(data,"1-0:32.32.0").c_str(), NULL);
-  n["Nr_v_sags_L2"] =                     std::strtod(getMapData(data,"1-0:52.32.0").c_str(), NULL);
-  n["Nr_v_sags_L3"] =                     std::strtod(getMapData(data,"1-0:72.32.0").c_str(), NULL);
-  n["Nr_v_swells_L1"] =                   std::strtod(getMapData(data,"1-0:32.32.0").c_str(), NULL);
-  n["Nr_v_swells_L2"] =                   std::strtod(getMapData(data,"1-0:52.32.0").c_str(), NULL);
-  n["Nr_v_swells_L3"] =                   std::strtod(getMapData(data,"1-0:72.32.0").c_str(), NULL);
-  n["Inst_volt_L1"] =                     std::strtod(getMapData(data,"1-0:32.7.0").c_str(), NULL);
-  n["Inst_volt_L2"] =                     std::strtod(getMapData(data,"1-0:52.7.0").c_str(), NULL);
-  n["Inst_volt_L3"] =                     std::strtod(getMapData(data,"1-0:72.7.0").c_str(), NULL);
-  n["Inst_curr_L1"] =                     std::strtod(getMapData(data,"1-0:31.7.0").c_str(), NULL);
-  n["Inst_curr_L2"] =                     std::strtod(getMapData(data,"1-0:51.7.0").c_str(), NULL);
-  n["Inst_curr_L3"] =                     std::strtod(getMapData(data,"1-0:71.7.0").c_str(), NULL);
-  n["Inst_act_pow_L1_+P"] =               std::strtod(getMapData(data,"1-0:21.7.0").c_str(), NULL);
-  n["Inst_act_pow_L2_+P"] =               std::strtod(getMapData(data,"1-0:41.7.0").c_str(), NULL);
-  n["Inst_act_pow_L3_+P"] =               std::strtod(getMapData(data,"1-0:61.7.0").c_str(), NULL);
-  n["Inst_act_pow_L1_-P"] =               std::strtod(getMapData(data,"1-0:22.7.0").c_str(), NULL);
-  n["Inst_act_pow_L2_-P"] =               std::strtod(getMapData(data,"1-0:42.7.0").c_str(), NULL);
-  n["Inst_act_pow_L3_-P"] =               std::strtod(getMapData(data,"1-0:62.7.0").c_str(), NULL);
+  n["E_deliv_to_T1"] =                    serialized(String(getMapDataDouble(data,"1-0:1.8.1"),3));
+  n["E_deliv_to_T2"] =                    serialized(String(getMapDataDouble(data,"1-0:1.8.2"),3));
+  n["E_deliv_by_T1"] =                    serialized(String(getMapDataDouble(data,"1-0:2.8.1"),3));
+  n["E_deliv_by_T2"] =                    serialized(String(getMapDataDouble(data,"1-0:2.8.2"),3));
+  n["E_Tariff_indic"] =                   serialized(String(getMapDataDouble(data,"0-0:96.14.0"),3));
+  n["E_act_deliv"] =                      serialized(String(getMapDataDouble(data,"1-0:1.7.0"),3));
+  n["E_act_receiv"] =                     serialized(String(getMapDataDouble(data,"1-0:2.7.0"),3));
+  n["Nr_pow_fails"] =                     serialized(String(getMapDataDouble(data,"1-0:96.7.21"),3));
+  n["Nr_long_pow_fails"] =                serialized(String(getMapDataDouble(data,"1-0:96.7.9"),3));
+  n["Nr_v_sags_L1"] =                     serialized(String(getMapDataDouble(data,"1-0:32.32.0"),3));
+  n["Nr_v_sags_L2"] =                     serialized(String(getMapDataDouble(data,"1-0:52.32.0"),3));
+  n["Nr_v_sags_L3"] =                     serialized(String(getMapDataDouble(data,"1-0:72.32.0"),3));
+  n["Nr_v_swells_L1"] =                   serialized(String(getMapDataDouble(data,"1-0:32.32.0"),3));
+  n["Nr_v_swells_L2"] =                   serialized(String(getMapDataDouble(data,"1-0:52.32.0"),3));
+  n["Nr_v_swells_L3"] =                   serialized(String(getMapDataDouble(data,"1-0:72.32.0"),3));
+  n["Inst_volt_L1"] =                     serialized(String(getMapDataDouble(data,"1-0:32.7.0"),3));
+  n["Inst_volt_L2"] =                     serialized(String(getMapDataDouble(data,"1-0:52.7.0"),3));
+  n["Inst_volt_L3"] =                     serialized(String(getMapDataDouble(data,"1-0:72.7.0"),3));
+  n["Inst_curr_L1"] =                     serialized(String(getMapDataDouble(data,"1-0:31.7.0"),3));
+  n["Inst_curr_L2"] =                     serialized(String(getMapDataDouble(data,"1-0:51.7.0"),3));
+  n["Inst_curr_L3"] =                     serialized(String(getMapDataDouble(data,"1-0:71.7.0"),3));
+  n["Inst_act_pow_L1_+P"] =               serialized(String(getMapDataDouble(data,"1-0:21.7.0"),3));
+  n["Inst_act_pow_L2_+P"] =               serialized(String(getMapDataDouble(data,"1-0:41.7.0"),3));
+  n["Inst_act_pow_L3_+P"] =               serialized(String(getMapDataDouble(data,"1-0:61.7.0"),3));
+  n["Inst_act_pow_L1_-P"] =               serialized(String(getMapDataDouble(data,"1-0:22.7.0"),3));
+  n["Inst_act_pow_L2_-P"] =               serialized(String(getMapDataDouble(data,"1-0:42.7.0"),3));
+  n["Inst_act_pow_L3_-P"] =               serialized(String(getMapDataDouble(data,"1-0:62.7.0"),3));
 
   doc["id"] = SENSORID;
   doc["measurements"] = array;
