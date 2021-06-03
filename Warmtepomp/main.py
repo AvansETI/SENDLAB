@@ -38,7 +38,7 @@ def on_message_sendlab(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
     
 def handleConsumptionSpaceheating(payload):
-    obj = json.loads(payload)
+    obj = json.loads(payload)["Electrical"]
     heating = obj["Heating"]
     cooling = obj["Cooling"]
     data = {
@@ -54,7 +54,7 @@ def handleConsumptionSpaceheating(payload):
     print(json.dumps(data))
 
 def handleConsumptionWatertank(payload):
-    obj = json.loads(payload)
+    obj = json.loads(payload)["Electrical"]
     heating = obj["Heating"]
     data = {
             "id": sensorId,
