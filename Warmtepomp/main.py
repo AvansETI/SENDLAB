@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import paho.mqtt.client as mqtt
 import json
 import math
@@ -71,7 +71,7 @@ def handleConsumptionWatertank(payload):
     data = {
             "id": sensorId,
             "measurements": [{
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.utcnow().isoformat(),
                 "consumption_tank": getLastConsumption(heating["D"])
             }]
         }
@@ -220,7 +220,7 @@ while( 1 ):
         data = {
             "id": sensorId,
             "measurements": [{
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.utcnow().isoformat(),
                 "targTemp_sh": math.fabs(spaceTargetTemp),
                 "opMode_sh": spaceOpMode,
                 "roomTempAuto_sh": math.fabs(spaceRoomTempAuto),
