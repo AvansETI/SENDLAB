@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 import paho.mqtt.client as mqtt
 import json
 import math
