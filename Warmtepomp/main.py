@@ -56,7 +56,7 @@ def handleConsumptionSpaceheating(payload):
     data = {
             "id": sensorId,
             "measurements": [{
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.utcnow().isoformat(),
                 "cons_cool_sh": getLastConsumption(cooling["D"]),
                 "cons_heat_sh": getLastConsumption(heating["D"])
             }]
