@@ -327,7 +327,7 @@ char* parseToJson(char buffer[P1_MAX_DATAGRAM_SIZE]){
 
   JsonObject n = array.createNestedObject();
 
-  n["timestamp"] =                                    parseTime(getMapData(data, "0-0:1.0.0").c_str()).c_str();
+  n["timestamp"] =                        parseTime(getMapData(data, "0-0:1.0.0").c_str()).c_str();
   //n["timestamp"] =                                    ntp.getEpochTime();
   n["E_deliv_to_T1"] =                    serialized(String(getMapDataDouble(data,"1-0:1.8.1"),3));
   n["E_deliv_to_T2"] =                    serialized(String(getMapDataDouble(data,"1-0:1.8.2"),3));
@@ -358,6 +358,7 @@ char* parseToJson(char buffer[P1_MAX_DATAGRAM_SIZE]){
   n["Inst_act_pow_L3_-P"] =               serialized(String(getMapDataDouble(data,"1-0:62.7.0"),3));
 
   doc["id"] = SENSORID;
+  doc["timestamp"] =                      parseTime(getMapData(data, "0-0:1.0.0").c_str()).c_str();
   doc["measurements"] = array;
   
   

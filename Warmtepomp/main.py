@@ -55,6 +55,7 @@ def handleConsumptionSpaceheating(payload):
     cooling = obj["Cooling"]
     data = {
             "id": sensorId,
+            "timestamp": datetime.utcnow().isoformat(),
             "measurements": [{
                 "timestamp": datetime.utcnow().isoformat(),
                 "cons_cool_sh": getLastConsumption(cooling["D"]),
@@ -70,6 +71,7 @@ def handleConsumptionWatertank(payload):
     heating = obj["Heating"]
     data = {
             "id": sensorId,
+            "timestamp": datetime.utcnow().isoformat(),
             "measurements": [{
                 "timestamp": datetime.utcnow().isoformat(),
                 "consumption_tank": getLastConsumption(heating["D"])
@@ -219,6 +221,7 @@ while( 1 ):
 
         data = {
             "id": sensorId,
+            "timestamp": datetime.utcnow().isoformat(),
             "measurements": [{
                 "timestamp": datetime.utcnow().isoformat(),
                 "targTemp_sh": math.fabs(spaceTargetTemp),
