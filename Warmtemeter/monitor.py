@@ -257,8 +257,8 @@ while(1):
       except:
           print('Failed to read data from slave at address %d' % slave_address)
 
-      # Turn off M-Bus
-      GPIO.output(mbus_gpio_bcm, GPIO.HIGH)
-      GPIO.cleanup()
+# Turn off M-Bus
+GPIO.output(mbus_gpio_bcm, GPIO.HIGH)
+GPIO.cleanup()
 
      
