@@ -258,6 +258,7 @@ while(1):
           print('Failed to read data from slave at address %d' % slave_address)
 
 # Turn off M-Bus
+GPIO.setmode(GPIO.BCM)
 GPIO.output(mbus_gpio_bcm, GPIO.HIGH)
 GPIO.cleanup()
 
