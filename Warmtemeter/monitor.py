@@ -209,55 +209,54 @@ while(1):
     timediff = datetime.now() - timestamp
     if (timediff.seconds > 10):
 
+      meterbus.send_ping_frame(ser, slave_address)
+      frame = meterbus.load(meterbus.recv_frame(ser, 1))
+      assert isinstance(frame, meterbus.TelegramACK)
+      meterbus.send_request_frame(ser, slave_address)
+      frame = meterbus.load(meterbus.recv_frame(ser, meterbus.FRAME_DATA_LENGTH))
+      assert isinstance(frame, meterbus.TelegramLong)
+      obj = json.loads(frame.to_JSON())
+      records = obj["body"]["records"]
+      data = {
+        "id": sensorId,
+        "measurements": [{
+            "timestamp": get_time_stamp(records),
+            "heat_energy":          records[0]["value"],
+            "cool_energy":          records[1]["value"],
+            "energy_E8":            records[2]["value"],
+            "vol_d1_t0":            records[3]["value"],
+            "vol_d2_t0":            records[4]["value"],
+            "vol_d0_t1":            records[5]["value"],
+            "vol_d0_t2":            records[6]["value"],
+            "vol_d0_t3":            records[7]["value"],
+            "op_on_time":           records[8]["value"],
+            "err_on_time":          records[9]["value"],
+            "flow_temp_in":         records[10]["value"],
+            "flow_temp_out":        records[11]["value"],
+            "temp_diff":            records[12]["value"],
+            "act_pow":              records[13]["value"],
+            "max_pow":              records[14]["value"],
+            "act_vol_flow":         records[15]["value"],
+            "max_vol_flow":         records[16]["value"],
+            "heat_energy_targ":     records[19]["value"],
+            "cool_energy_targ":     records[20]["value"],
+            "vol_d1_t0_targ":       records[21]["value"],
+            "vol_d2_t0_targ":       records[22]["value"],
+            "vol_d0_t1_targ":       records[23]["value"],
+            "vol_d0_t2_targ":       records[24]["value"],
+            "vol_d0_t3_targ":       records[25]["value"],
+            "max_pow_targ":         records[26]["value"],
+            "max_vol_flow_targ":    records[27]["value"]
+        }]
+      }
+      # sendlab.publish("node/data", json.dumps(data))
+      print(json.dumps(data))
+      timestamp = datetime.now()
       
-      try:
-          meterbus.send_ping_frame(ser, slave_address)
-          frame = meterbus.load(meterbus.recv_frame(ser, 1))
-          assert isinstance(frame, meterbus.TelegramACK)
-          meterbus.send_request_frame(ser, slave_address)
-          frame = meterbus.load(meterbus.recv_frame(ser, meterbus.FRAME_DATA_LENGTH))
-          assert isinstance(frame, meterbus.TelegramLong)
-
-          obj = json.loads(frame.to_JSON())
-          records = obj["body"]["records"]
-
-          data = {
-            "id": sensorId,
-            "measurements": [{
-                "timestamp": get_time_stamp(records),
-                "heat_energy":          records[0]["value"],
-                "cool_energy":          records[1]["value"],
-                "energy_E8":            records[2]["value"],
-                "vol_d1_t0":            records[3]["value"],
-                "vol_d2_t0":            records[4]["value"],
-                "vol_d0_t1":            records[5]["value"],
-                "vol_d0_t2":            records[6]["value"],
-                "vol_d0_t3":            records[7]["value"],
-                "op_on_time":           records[8]["value"],
-                "err_on_time":          records[9]["value"],
-                "flow_temp_in":         records[10]["value"],
-                "flow_temp_out":        records[11]["value"],
-                "temp_diff":            records[12]["value"],
-                "act_pow":              records[13]["value"],
-                "max_pow":              records[14]["value"],
-                "act_vol_flow":         records[15]["value"],
-                "max_vol_flow":         records[16]["value"],
-                "heat_energy_targ":     records[19]["value"],
-                "cool_energy_targ":     records[20]["value"],
-                "vol_d1_t0_targ":       records[21]["value"],
-                "vol_d2_t0_targ":       records[22]["value"],
-                "vol_d0_t1_targ":       records[23]["value"],
-                "vol_d0_t2_targ":       records[24]["value"],
-                "vol_d0_t3_targ":       records[25]["value"],
-                "max_pow_targ":         records[26]["value"],
-                "max_vol_flow_targ":    records[27]["value"]
-            }]
-          }
-          # sendlab.publish("node/data", json.dumps(data))
-          print(json.dumps(data))
-          timestamp = datetime.now()
-      except:
-          print('Failed to read data from slave at address %d' % slave_address)
+      # try:
+          
+      # except:
+      #     print('Failed to read data from slave at address %d' % slave_address)
 
 # Turn off M-Bus
 GPIO.setmode(GPIO.BCM)
