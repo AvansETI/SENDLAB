@@ -36,7 +36,7 @@ def on_message_sendlab(client, userdata, msg):
 
 def get_time_stamp(records):
   time = records[18]
-  time = time + ":00"
+  time = time["value"] + ":00"
   return time
 
 sensorInit = {
