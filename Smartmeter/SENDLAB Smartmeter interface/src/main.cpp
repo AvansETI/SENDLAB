@@ -318,7 +318,7 @@ std::string parseTime(std::string time){
   return retval;
 }
 
-char* parseToJson(char buffer[P1_MAX_DATAGRAM_SIZE]){
+std::string parseToJson(char buffer[P1_MAX_DATAGRAM_SIZE]){
   DynamicJsonDocument doc(2048);
   DynamicJsonDocument arrayDoc(2048);
   JsonArray array = arrayDoc.to<JsonArray>();
@@ -326,8 +326,9 @@ char* parseToJson(char buffer[P1_MAX_DATAGRAM_SIZE]){
   std::map<std::string, std::string> data = parseToMap(buffer);
 
   JsonObject n = array.createNestedObject();
+  std::string timestamp = parseTime(getMapData(data, "0-0:1.0.0").c_str()).c_str();
 
-  n["timestamp"] =                        parseTime(getMapData(data, "0-0:1.0.0").c_str()).c_str();
+  n["timestamp"] =                        timestamp;
   //n["timestamp"] =                                    ntp.getEpochTime();
   n["E_deliv_to_T1"] =                    serialized(String(getMapDataDouble(data,"1-0:1.8.1"),3));
   n["E_deliv_to_T2"] =                    serialized(String(getMapDataDouble(data,"1-0:1.8.2"),3));
@@ -358,16 +359,15 @@ char* parseToJson(char buffer[P1_MAX_DATAGRAM_SIZE]){
   n["Inst_act_pow_L3_-P"] =               serialized(String(getMapDataDouble(data,"1-0:62.7.0"),3));
 
   doc["id"] = SENSORID;
-  doc["timestamp"] =                      parseTime(getMapData(data, "0-0:1.0.0").c_str()).c_str();
+  doc["timestamp"] =                      timestamp;
   doc["measurements"] = array;
   
   
-  char retval[2048];
+  String retval;
 
   serializeJson(doc, retval);
 
-  return retval;
-
+  return std::string(retval.c_str());
 }
 
 void loop()
@@ -385,7 +385,7 @@ void loop()
       delay(50);
       clearLed();
 
-      mqtt.publish("node/data", parseToJson(p1.p1_buffer));
+      mqtt.publish("node/data", parseToJson(p1.p1_buffer).c_str());
     }
   }
 }

@@ -1,0 +1,228 @@
+{
+    "body": {
+        "header": {
+            "access_no": 2,
+            "identification": "0x80, 0x37, 0x20, 0x86",
+            "manufacturer": "KAM",
+            "medium": "0xd",
+            "sign": "0x0, 0x0",
+            "status": "0x0",
+            "type": "0x72",
+            "version": "0x35"
+        },
+        "records": [
+            { // heat energy E1
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.ENERGY_WH",
+                "unit": "MeasureUnit.WH",
+                "value": 539700
+            },
+            { // cooling energy E3
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.ENERGY_WH",
+                "unit": "MeasureUnit.WH",
+                "value": 3214000
+            },
+            { // Energy E8 (m3*T1)
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.VOLUME",
+                "unit": "MeasureUnit.M3",
+                "value": 1116.640000000000100044417195022106170654296875
+            },
+            { // volume dev 1 t 0
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.VOLUME",
+                "unit": "MeasureUnit.M3",
+                "value": 0
+            },
+            {// volume dev 2 t 0
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.VOLUME",
+                "unit": "MeasureUnit.M3",
+                "value": 0
+            },
+            { // volume dev 0 t 1
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.VOLUME",
+                "unit": "MeasureUnit.M3",
+                "value": 132.5529999999999972715158946812152862548828125
+            },
+            { // volume dev 0 t 2
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.VOLUME",
+                "unit": "MeasureUnit.M3",
+                "value": 981.3319999999999936335370875895023345947265625
+            },
+            {// volume dev 0 t  3
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.VOLUME",
+                "unit": "MeasureUnit.M3",
+                "value": 0
+            },
+            { // on time in operation
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.ON_TIME",
+                "unit": "MeasureUnit.SECONDS",
+                "value": 41554800
+            },
+            { // on time in error state
+                "function": "FunctionType.ERROR_STATE_VALUE",
+                "type": "VIFUnit.ON_TIME",
+                "unit": "MeasureUnit.SECONDS",
+                "value": 25261200
+            },
+            { // flow temp inlet T1
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.FLOW_TEMPERATURE",
+                "unit": "MeasureUnit.C",
+                "value": 6.54999999999999982236431605997495353221893310546875
+            },
+            { // flow temp outlet T2
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.RETURN_TEMPERATURE",
+                "unit": "MeasureUnit.C",
+                "value": 9.0299999999999993605115378159098327159881591796875
+            },
+            { // temp difference T1-T2
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.TEMPERATURE_DIFFERENCE",
+                "unit": "MeasureUnit.K",
+                "value": -2.479999999999999982236431605997495353221893310546875
+            },
+            { // Actual power
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.POWER_W",
+                "unit": "MeasureUnit.W",
+                "value": -2100
+            },
+            { // max power this month
+                "function": "FunctionType.MAXIMUM_VALUE",
+                "type": "VIFUnit.POWER_W",
+                "unit": "MeasureUnit.W",
+                "value": -3400
+            },
+            { // actual volume flow
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.VOLUME_FLOW",
+                "unit": "MeasureUnit.M3_H",
+                "value": 0.69600000000000006306066779870889149606227874755859375
+            },
+            { // max volume flow this month
+                "function": "FunctionType.MAXIMUM_VALUE",
+                "type": "VIFUnit.VOLUME_FLOW",
+                "unit": "MeasureUnit.M3_H",
+                "value": 0.9979999999999999982236431605997495353221893310546875
+            },
+            { // info
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.MANUFACTURER_SPEC",
+                "unit": "MeasureUnit.NONE",
+                "value": 0
+            },
+            { // timestamp
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.DATE_TIME_GENERAL",
+                "unit": "MeasureUnit.DATE_TIME",
+                "value": "2021-06-10T14:39"
+            },
+            {   // Heat energy E1 target
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.ENERGY_WH",
+                "unit": "MeasureUnit.WH",
+                "value": 539000
+            },
+            {  // Cooling energy E3 target
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.ENERGY_WH",
+                "unit": "MeasureUnit.WH",
+                "value": 2966400
+            },
+            {  // d1 t0 volume target
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.VOLUME",
+                "unit": "MeasureUnit.M3",
+                "value": 1034.39499999999998181010596454143524169921875
+            },
+            {  // d2 t0 volume target
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.VOLUME",
+                "unit": "MeasureUnit.M3",
+                "value": 0
+            },
+            {// d0 t1 volume target
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.VOLUME",
+                "unit": "MeasureUnit.M3",
+                "value": 0
+            },
+            {// d0 t1 volume target
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.VOLUME",
+                "unit": "MeasureUnit.M3",
+                "value": 129.366999999999990222931955941021442413330078125
+            },
+            {// d0 t2 volume target
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.VOLUME",
+                "unit": "MeasureUnit.M3",
+                "value": 902.88599999999996725819073617458343505859375
+            },
+            {// d0 t3 volume target
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.VOLUME",
+                "unit": "MeasureUnit.M3",
+                "value": 0
+            },
+            {// max power this year target
+                "function": "FunctionType.MAXIMUM_VALUE",
+                "type": "VIFUnit.POWER_W",
+                "unit": "MeasureUnit.W",
+                "value": -3100
+            },
+            {// max flow this year target
+                "function": "FunctionType.MAXIMUM_VALUE",
+                "type": "VIFUnit.VOLUME_FLOW",
+                "unit": "MeasureUnit.M3_H",
+                "value": 0.846999999999999975131004248396493494510650634765625
+            },
+            { // datum
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.DATE",
+                "unit": "MeasureUnit.DATE",
+                "value": "2021-06-01"
+            },
+            { // meter type
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.MANUFACTURER_SPEC",
+                "unit": "MeasureUnit.NONE",
+                "value": 6914
+            },
+            { // meter serial number
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.FABRICATION_NO",
+                "unit": "MeasureUnit.NONE",
+                "value": 80372086
+            },
+            { // module config
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.MANUFACTURER_SPEC",
+                "unit": "MeasureUnit.NONE",
+                "value": 2100104
+            },
+            { // module sw version
+                "function": "FunctionType.INSTANTANEOUS_VALUE",
+                "type": "VIFUnit.MANUFACTURER_SPEC",
+                "unit": "MeasureUnit.NONE",
+                "value": 11851101
+            }
+        ]
+    },
+    "head": {
+        "a": "0x1",
+        "c": "0x8",
+        "crc": "0xfb",
+        "length": "0xe5",
+        "start": "0x68",
+        "stop": "0x16"
+    }
+}
