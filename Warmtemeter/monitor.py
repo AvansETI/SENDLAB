@@ -249,7 +249,7 @@ while(1):
                 "max_vol_flow_targ":    float(records[27]["value"])
             }]
           }
-          # sendlab.publish("node/data", json.dumps(data))
+          sendlab.publish("node/data", json.dumps(data))
           print(json.dumps(data))
           timestamp = datetime.now()
       except:

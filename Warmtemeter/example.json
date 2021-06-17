@@ -32,3 +32,37 @@
     ],
     "id": "SENDLAB_Warmtemeter"
 }
+{
+    "measurements": [
+        {
+            "flow_temp_in": 6.95,
+            "vol_d1_t0_targ": 1034.395,
+            "max_pow_targ": 0.0,
+            "temp_diff": -3.0500000000000003,
+            "vol_d0_t2_targ": 129.367,
+            "max_vol_flow": 0.998,
+            "vol_d1_t0": 0.0,
+            "heat_energy_targ": 539000.0,
+            "err_on_time": 25264800.0,
+            "vol_d0_t1_targ": 0.0,
+            "vol_d2_t0_targ": 0.0,
+            "timestamp": "2021-06-17T14:19:00",
+            "max_pow": -3400.0,
+            "flow_temp_out": 10.0,
+            "vol_d2_t0": 0.0,
+            "heat_energy": 540300.0,
+            "op_on_time": 42156000.0,
+            "cool_energy_targ": 2966400.0,
+            "energy_E8": 1190.928,
+            "cool_energy": 3427700.0,
+            "vol_d0_t3_targ": 902.886,
+            "act_vol_flow": 0.6900000000000001,
+            "max_vol_flow_targ": -3100.0,
+            "act_pow": -2400.0,
+            "vol_d0_t1": 135.784,
+            "vol_d0_t2": 1051.673,
+            "vol_d0_t3": 0.0
+        }
+    ],
+    "id": "SENDLAB_Warmtemeter"
+}

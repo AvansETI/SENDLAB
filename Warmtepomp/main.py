@@ -224,15 +224,15 @@ while( 1 ):
             "timestamp": datetime.utcnow().isoformat(),
             "measurements": [{
                 "timestamp": datetime.utcnow().isoformat(),
-                "targTemp_sh": math.fabs(spaceTargetTemp),
+                "targTemp_sh": float(spaceTargetTemp),
                 "opMode_sh": spaceOpMode,
-                "roomTempAuto_sh": math.fabs(spaceRoomTempAuto),
-                "roomTempCool_sh": math.fabs(spaceRoomTempCooling),
-                "roomTempHeat_sh": math.fabs(spaceRoomTempHeating),
-                "indoorTemp_sh": math.fabs(spaceSensIndoorTemp),
-                "outdoorTemp_sh": math.fabs(spaceSensOutdoorTemp),
-                "temp_tank": math.fabs(sensorTankTemp),
-                "targTemp_tank": math.fabs(opTankTargetTemp),
+                "roomTempAuto_sh": float(spaceRoomTempAuto),
+                "roomTempCool_sh": float(spaceRoomTempCooling),
+                "roomTempHeat_sh": float(spaceRoomTempHeating),
+                "indoorTemp_sh": float(spaceSensIndoorTemp),
+                "outdoorTemp_sh": float(spaceSensOutdoorTemp),
+                "temp_tank": float(sensorTankTemp),
+                "targTemp_tank": float(opTankTargetTemp),
                 "opMode_tank": opModeWaterTank
             }]
         }
