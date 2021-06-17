@@ -218,7 +218,6 @@ while(1):
 
           obj = json.loads(frame.to_JSON())
           records = obj["body"]["records"]
-          print(records)
 
           data = {
             "id": sensorId,
