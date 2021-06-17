@@ -219,6 +219,7 @@ while(1):
           records = obj["body"]["records"]
           data = {
             "id": sensorId,
+            "timestamp": get_time_stamp(records),
             "measurements": [{
                 "timestamp": get_time_stamp(records),
                 "heat_energy":          float(records[0]["value"]),
