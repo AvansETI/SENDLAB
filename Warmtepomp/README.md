@@ -1,5 +1,5 @@
 Credentials Warmtemeter / Warmtepomp pi: 
-Username: raspberrypi 
+Username: pi
 Password: Sendlabpi1 
 Ip adres: 192.168.0.129
 
