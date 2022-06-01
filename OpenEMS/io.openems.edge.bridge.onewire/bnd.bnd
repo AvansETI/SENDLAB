@@ -27,7 +27,8 @@ Include-Resource: \
 	${buildpath},\
 	io.openems.common,\
 	io.openems.edge.common,\
-	lib/RXTXcomm.jar;version=file
+	lib/RXTXcomm.jar;version=file,\
+	org.openmuc.jrxtx
 
 -testpath: \
 	${testpath}

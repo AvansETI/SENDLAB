@@ -18,11 +18,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Core User", //
 		description = "This component handles User authentication.")
 @interface Config {
-	@AttributeDefinition(name = "Admin: password", description = "hashed password for User 'admin'", type = AttributeType.PASSWORD)
-	String adminPassword() default "txASlUVQkEI9Bxa/IZOJe8l3+R4lMzFTShz27vK44go=";
+	//password changed to maurice
+	@AttributeDefinition(name = "Admin: password", description = "hashed password for User 'maurice'", type = AttributeType.PASSWORD)
+	String adminPassword() default "U2w+8LLuMDK34wxR+pX1jn8+vxjJZJe9xg3TqkSs7TI=";
 
 	@AttributeDefinition(name = "Admin: salt", description = "salt for User 'admin'", type = AttributeType.PASSWORD)
-	String adminSalt() default "YWRtaW4=";
+	String adminSalt() default "bWF1cmljZQ==";
 
 	@AttributeDefinition(name = "Installer: password", description = "hashed password for User 'installer'", type = AttributeType.PASSWORD)
 	String installerPassword() default "2O1dMlsFdwafy58ehrT+X+0CEWaAmBRad5JFbTLx/Wo=";
