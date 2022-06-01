@@ -116,7 +116,7 @@ local.properties
 .mtj.tmp/
 
 # Package Files #
-*.jar
+#*.jar
 *.war
 *.ear
 *.zip
@@ -127,7 +127,7 @@ local.properties
 hs_err_pid*
 
 ### Maven ###
-target/
+#target/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
