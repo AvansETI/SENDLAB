@@ -21,6 +21,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Port", description = "Port of the Tesla Powerwall 2 API")
 	int port() default 443;
+	
+	@AttributeDefinition(name = "Username", description = "Username of the powerwall gateway")
+	String username() default "";
+	
+	@AttributeDefinition(name = "Password", description = "Password of the powerwall gateway")
+	String password() default "";
 
 	String webconsole_configurationFactory_nameHint() default "Tesla Powerwall 2 Core [{id}]";
 

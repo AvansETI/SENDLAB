@@ -3,6 +3,7 @@ package io.openems.edge.tesla.powerwall2.core.custom;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.Inet4Address;
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -31,11 +32,20 @@ public class ReadWorker extends AbstractCycleWorker {
 
 	private final TeslaPowerwall2CoreImpl parent;
 	private final String baseUrl;
+	
+	private String authToken;
+	
+	private final String username;
+	private final String password;
 
-	protected ReadWorker(TeslaPowerwall2CoreImpl parent, Inet4Address ipAddress, int port)
+	protected ReadWorker(TeslaPowerwall2CoreImpl parent, Inet4Address ipAddress, int port, String username, String password)
 			throws NoSuchAlgorithmException, KeyManagementException {
 		this.parent = parent;
-		this.baseUrl = "https://" + ipAddress.getHostAddress() + ":" + port + "/api";
+//		this.baseUrl = "https://" + ipAddress.getHostAddress() + ":" + port + "/api";
+		this.baseUrl = "https://" + ipAddress.getHostAddress() + "/api";
+		
+		this.username = username;
+		this.password = password;
 
 		/*
 		 * Disable SSL certificate checking
@@ -57,6 +67,13 @@ public class ReadWorker extends AbstractCycleWorker {
 		} };
 		context.init(null, trustManager, new SecureRandom());
 		HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+		
+		try {
+			this.authToken = getToken();
+			System.out.println(this.authToken);
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -121,17 +138,58 @@ public class ReadWorker extends AbstractCycleWorker {
 	 * @throws OpenemsNamedException on error
 	 */
 	private JsonObject getResponse(String path) throws OpenemsNamedException {
-		try {
-			var url = new URL(this.baseUrl + path);
-			var connection = (HttpsURLConnection) url.openConnection();
-			connection.setHostnameVerifier((hostname, session) -> true);
-			try (var reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-				var content = reader.lines().collect(Collectors.joining());
-				return JsonUtils.parseToJsonObject(content);
-			}
-		} catch (IOException e) {
-			throw new OpenemsException(e.getClass().getSimpleName() + ": " + e.getMessage());
-		}
-	}
+        try {
+            URL url = new URL(this.baseUrl + path);
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            connection.setRequestProperty("cookie", "AuthCookie=" + this.authToken + ";");
+            connection.setHostnameVerifier((hostname, session) -> {
+                return true;
+            });
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                String content = reader.lines().collect(Collectors.joining());
+                return JsonUtils.parseToJsonObject(content);
+            }
+        } catch (IOException e) {
+            throw new OpenemsException(e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+    }
+	
+	
+	private String getToken() throws OpenemsNamedException {
+        URL url;
+        try {
+            url = new URL(this.baseUrl + "/login/Basic");
+            HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json; utf-8");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setDoOutput(true);
+            String jsonInputString = "{\"username\":\"customer\",\"password\":\""
+            		+ this.password + "\",\"email\":\""
+            		+ this.username + "\",\"clientInfo\":{\"timezone\":\"Europe/Amsterdam\"}}";
+            connection.setHostnameVerifier((hostname, session) -> {
+                return true;
+            });
+            try(OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonInputString.getBytes("utf-8");
+                os.write(input, 0, input.length);           
+            } 
+            try(BufferedReader br = new BufferedReader(
+                      new InputStreamReader(connection.getInputStream(), "utf-8"))) {
+                        StringBuilder response = new StringBuilder();
+                        String responseLine = null;
+                        while ((responseLine = br.readLine()) != null) {
+                            response.append(responseLine.trim());
+                        }
+                        //System.out.println(response);
+                        String[] temp = response.toString().split(",");
+                        String[] token = temp[4].split(":");
+                        //System.out.println(token[1].substring(1, token[1].length() - 1));
+                        return token[1].substring(1, token[1].length() - 1);
+                    }
+        } catch (IOException e) {
+            throw new OpenemsException(e.getClass().getSimpleName() + ": " + e.getMessage());
+        } 
+    }
 
 }
