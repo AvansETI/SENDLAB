@@ -114,6 +114,9 @@ local.properties
 
 # Package Files #
 *.jar
+!RXTXcomm.jar
+!json-logic-java-1.0.0.jar
+!librevpi-dio-java.jar
 *.war
 *.ear
 *.zip
