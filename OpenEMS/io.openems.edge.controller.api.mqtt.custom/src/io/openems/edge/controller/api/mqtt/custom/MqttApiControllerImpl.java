@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.mqtt.custom;
+package io.openems.edge.controller.api.mqtt;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
@@ -40,7 +40,7 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.Api.MQTT.Custom", //
+@Component(name = "Controller.Api.MQTT", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
@@ -78,7 +78,9 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	private IMqttClient mqttClient = null;
 	
 	private String sensorId = "SENDLAB_test"; 
-
+	
+	Timestamp instant= Timestamp.from(Instant.now());
+	
 	@Activate
 	void activate(ComponentContext context, Config config) throws Exception {
 		this.config = config;
@@ -102,7 +104,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 					
 					//Need to figure out how to refresh connection when new conenction is made or app is refreshed.
 					for(String topic : config.topic()) {
-						this.subscribe(topic, 0);
+						//this.subscribe(topic, 0);
 					}
 					
 					
@@ -110,17 +112,29 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 					//node/smartmeter-2019-ETI-EMON-V01-DADDE2-16301C/data
 					
 					//TODO - choose correct init data (if necessary)
-//					if(
+					if(
 //							//testing only on local broker
 //							//this.subscribe("$SYS/#", 0) &&
 //						this.subscribe("node/init",0) &&
 //						this.subscribe("node/data",0) && 
-//						this.subscribe("node/" + sensorId + "/message", 0) && 
-//						this.subscribe("node/" + sensorId + "/data", 0)) {
+						this.subscribe("node/" + sensorId + "/message", 0) && 
+						this.subscribe("node/" + sensorId + "/data", 0)) {
 //					//This works just needs to fix publish for data
-//							this.logInfo(log, "publish init message");
-//							this.publish("node/init", initv2(), 0, true, new MqttProperties());
-//					}
+							this.logInfo(log, "publish init message");
+							this.publish("node/init", initv2(), 0, true, new MqttProperties());
+							
+							int temp = 21;
+							int humidity = 56;   
+							while(true) {
+								int timediff = Timestamp.from(Instant.now()).getSeconds() - instant.getSeconds();
+									if ( timediff > 1 ) {
+										this.publish("node/data", testDatav2(temp,humidity),0,true,new MqttProperties());
+										temp += 1;
+										humidity += 1;
+										instant = Timestamp.from(Instant.now());
+								    };
+							}
+					}
 			
 				}
 			});		
@@ -129,7 +143,8 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	protected MqttApiCallbackImpl getCallback(NodeType type) {
 		switch (type){
 		case SMARTMETER:
-			return new MqttApiCallbackSmartMeterImpl();
+//			return new MqttApiCallbackSmartMeterImpl();
+			return new MqttApiCallbackImpl();
 			
 		case SOLAREDGE:
 			//TODO implement Solaredge callback.
@@ -157,19 +172,10 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	Timestamp instant= Timestamp.from(Instant.now());
 	
 	@Override
 	public void run() throws OpenemsNamedException {
-	    int timediff = Timestamp.from(Instant.now()).getSeconds() - instant.getSeconds();
-	    if ( timediff > 1 ) {
-			double temp = 21.4;
-			double humidity = 56.5;
-//			this.publish("node/data", testDatav2(temp,humidity),0,true,new MqttProperties());
-			temp += 0.1;
-			humidity += 0.1;
-			instant = Timestamp.from(Instant.now());
-	    };
+	   
 	}
 
 	@Override
@@ -328,153 +334,6 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 
 	}
 	
-	protected String init() {
-		
-	    Map<String, Object> sensorInit = new LinkedHashMap<>();
-	    sensorInit.put("mode",0);
-	    sensorInit.put("type","sensor");
-	    sensorInit.put("id", sensorId);
-	    sensorInit.put("name","SENDLAB test");
-	    
-	    measurement[] measurements = new measurement[] {		
-	    	   new measurement(
-	    		"heat_energy",
-	    		"Heat energy of heatmeter",
-	    		"W/Hour"
-	    	), new measurement(
-	    		"cool_energy", 
-	    		"Cooling energy of heatmeter", 
-	    		"W/Hour"
-	        ), new measurement( 
-	            "energy_E8",
-	            "Marked as energy E8 - (m3*T1)",
-	            "M3"
-	        ), new measurement(
-	            "vol_d1_t0",
-	            "Volume of device 1 with tariff 0",
-	            "M3"
-	        ), new measurement(
-	            "vol_d2_t0",
-	            "Volume of device 2 with tariff 0",
-	            "M3"
-	        ), new measurement(
-	            "vol_d0_t1",
-	            "Volume of device 0 with tariff 1",
-	            "M3"
-	        ), new measurement(
-	            "vol_d0_t2",
-	            "Volume of device 0 with tariff 2",
-	            "M3"
-	        ), new measurement(
-	            "vol_d0_t3",
-	            "Volume of device 0 with tariff 3",
-	            "M3"
-	        ), new measurement(
-	            "op_on_time",
-	            "On time in operation",
-	            "Seconds"
-	        ), new measurement(
-	            "err_on_time",
-	            "On time in error state",
-	            "Seconds"
-	        ), new measurement(
-	            "flow_temp_in",
-	            "Flow temp inlet as T1",
-	            "degree of celsius"
-	        ), new measurement(
-	            "flow_temp_out",
-	            "Flow temp outlet as T2",
-	            "degree of celsius"
-	        ), new measurement(
-	            "temp_diff",
-	            "Temperature difference T1-T2",
-	            "degree of celsius"
-	        ), new measurement(
-	            "act_pow",
-	            "Actual power",
-	            "W"
-	        ), new measurement(
-	            "max_pow",
-	            "Max power this month",
-	            "W"
-	        ), new measurement(
-	            "act_vol_flow",
-	            "Actual volume flow",
-	            "M3_H"
-	        ), new measurement(
-	            "max_vol_flow",
-	            "Maximum volume flow this month",
-	            "M3_H"
-	        ), new measurement(
-	            "heat_energy_targ",
-	            "Heat energy target of heatmeter",
-	            "W/Hour"
-	        ), new measurement(
-	            "cool_energy_targ",
-	            "Cooling energy target of heatmeter",
-	            "W/Hour"
-	        ), new measurement(
-	            "vol_d1_t0_targ",
-	            "Volume target of device 1 with tariff 0",
-	            "M3"
-	        ), new measurement(
-	            "vol_d2_t0_targ",
-	            "Volume target of device 2 with tariff 0",
-	            "M3"
-	        ), new measurement(
-	            "vol_d0_t1_targ",
-	            "Volume target of device 0 with tariff 1",
-	            "M3"
-	        ), new measurement(
-	            "vol_d0_t2_targ",
-	            "Volume target of device 0 with tariff 2",
-	            "M3"
-	        ), new measurement(
-	            "vol_d0_t3_targ",
-	            "Volume target of device 0 with tariff 3",
-	            "M3"
-	        ), new measurement(
-	            "max_pow_targ",
-	            "Max power this year target",
-	            "W"
-	        ), new measurement(
-	            "max_vol_flow_targ",
-	            "Maximum volume flow this year target",
-	            "M3_H"
-	        )
-	    };
-	    
-	    sensorInit.put("measurements", measurements);
-	    sensorInit.put("actuators", new Object[0]);
-	    
-		Gson g = new Gson();
-		return g.toJson(sensorInit);	
-	}
-	
-	protected String testData() {
-		
-		Map<String, Object> data = new LinkedHashMap<>();
-		
-		Timestamp instant= Timestamp.from(Instant.now());
-		String time = instant.toString();
-
-		String[] s = time.split(" ");
-		String b = s[0]; 
-		String c = s[1]; 
-		time = b + "T" + c;
-		
-		data.put("id",sensorId);
-		data.put("timestamp", time);
-		Map<String, String>  measurements = new LinkedHashMap<>();
-		measurements.put("timestamp", time);
-		measurements.put("heat_energy", "5");
-		measurements.put("cool_energy", "10");
-		data.put("measurements", measurements);
-		
-		Gson g = new Gson();
-		return g.toJson(data);
-	}
-
 	protected String initv2() {
 	
 		Map<String, Object> sensor_init = new LinkedHashMap<>();
@@ -512,9 +371,47 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		 Gson g = new Gson();
 		 return g.toJson(sensor_init);
 	}
+	
+	class meterData {
 
-	protected String testDatav2(double temp, double humidity) {
+		String timestamp;
+		double temperature;
+		double humidity;
 		
+		meterData(String timestamp, double temperature, double humidity){
+			this.timestamp = timestamp;
+			this.temperature = temperature;
+			this.humidity = humidity;
+		}
+		
+
+		public String getTimestamp() {
+			return timestamp;
+		}
+
+		public void setTimestamp(String timestamp) {
+			this.timestamp = timestamp;
+		}
+
+		public double getTemperature() {
+			return temperature;
+		}
+
+		public void setTemperature(double temperature) {
+			this.temperature = temperature;
+		}
+
+		public double getHumidity() {
+			return humidity;
+		}
+
+		public void setHumidity(double humidity) {
+			this.humidity = humidity;
+		}
+
+	}
+
+	protected String testDatav2(int temp, int humidity) {
 		
 		Map<String, Object> data = new LinkedHashMap<>();
 		
@@ -528,10 +425,9 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		
 		data.put("id",sensorId);
 		data.put("timestamp", time);
-		Map<String, Object>  measurements = new LinkedHashMap<>();
-		measurements.put("timestamp", time);
-		measurements.put("temperature", temp);
-		measurements.put("humidity", humidity);
+		meterData[] measurements = new meterData[] {
+			new meterData(time,temp,humidity)
+		};
 		data.put("measurements", measurements);
 		
 		Gson g = new Gson();
