@@ -57,9 +57,10 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(MqttApiControllerImpl.class);
 	private final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
 	private final MqttConnector mqttConnector = new MqttConnector();
+	private final MqttConnector mqttConnectorForConfig = new MqttConnector();
 
 	protected Config config;
-	private String topicPrefix;
+	private final String sendlabUri = "tcp://sendlab.nl:11884";
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -76,17 +77,11 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	}
 
 	private IMqttClient mqttClient = null;
-	
-	private String sensorId = "SENDLAB_test"; 
-	
-	Timestamp instant= Timestamp.from(Instant.now());
+	private IMqttClient mqttClientForConfig = null;
 	
 	@Activate
 	void activate(ComponentContext context, Config config) throws Exception {
 		this.config = config;
-
-		// Publish MQTT messages under the topic "edge/edge0/..."
-		this.topicPrefix = String.format(MqttApiController.TOPIC_PREFIX, config.clientId());
 
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		
@@ -104,47 +99,33 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 					
 					//Need to figure out how to refresh connection when new conenction is made or app is refreshed.
 					for(String topic : config.topic()) {
-						//this.subscribe(topic, 0);
+						this.subscribe(topic, 0);
 					}
 					
-					
-					//current topic
-					//node/smartmeter-2019-ETI-EMON-V01-DADDE2-16301C/data
-					
-					//TODO - choose correct init data (if necessary)
-					if(
-//							//testing only on local broker
-//							//this.subscribe("$SYS/#", 0) &&
-//						this.subscribe("node/init",0) &&
-//						this.subscribe("node/data",0) && 
-						this.subscribe("node/" + sensorId + "/message", 0) && 
-						this.subscribe("node/" + sensorId + "/data", 0)) {
-//					//This works just needs to fix publish for data
-							this.logInfo(log, "publish init message");
-							this.publish("node/init", initv2(), 0, true, new MqttProperties());
-							
-							int temp = 21;
-							int humidity = 56;   
-							while(true) {
-								int timediff = Timestamp.from(Instant.now()).getSeconds() - instant.getSeconds();
-									if ( timediff > 1 ) {
-										this.publish("node/data", testDatav2(temp,humidity),0,true,new MqttProperties());
-										temp += 1;
-										humidity += 1;
-										instant = Timestamp.from(Instant.now());
-								    };
-							}
+					if(config.uri().contains(sendlabUri)) {
+						this.subscribe("node/" + config.clientId() + "/message", 0); 
+						this.subscribe("node/" + config.clientId() + "/data", 0);
+						
 					}
 			
 				}
 			});		
+		
+		if(config.uri().contains(sendlabUri)) {
+			this.mqttConnectorForConfig.connect(config.uri(), config.clientId(), config.username(), config.password())
+			.thenAccept(client -> {
+				this.mqttClientForConfig = client;				
+				if(this.mqttClientForConfig.isConnected()) {
+					this.logInfo(this.log, "Connected to MQTT Broker CONFIG [" + config.uri() + "]");
+				}
+			});
+		}
 	}
 	
 	protected MqttApiCallbackImpl getCallback(NodeType type) {
 		switch (type){
 		case SMARTMETER:
-//			return new MqttApiCallbackSmartMeterImpl();
-			return new MqttApiCallbackImpl();
+			return new MqttApiCallbackSmartMeterImpl();
 			
 		case SOLAREDGE:
 			//TODO implement Solaredge callback.
@@ -160,22 +141,39 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		this.mqttConnector.deactivate();
 		this.sendChannelValuesWorker.deactivate();
+		
+		if(this.mqttConnector != null) {
+			this.mqttConnector.deactivate();
+		}
 		if (this.mqttClient != null) {
-			try {
-				this.mqttClient.close();				
+			try {	
+				this.mqttClient.disconnect();	
+				this.mqttClient.close();	
 			} catch (MqttException e) {
-				this.logWarn(this.log, "Unable to close connection to MQTT brokwer: " + e.getMessage());
+				this.logWarn(this.log, "Unable to close connection to MQTT broker: " + e.getMessage());
 				e.printStackTrace();
 			}
+		}
+		
+		if(this.mqttConnectorForConfig != null) {
+			this.mqttConnectorForConfig.deactivate();
+		}
+		if(this.mqttClientForConfig != null) {
+			try {
+				this.mqttClientForConfig.disconnect();	
+				this.mqttClientForConfig.close();		
+			} catch (MqttException e) {
+				this.logWarn(this.log, "Unable to close connection to MQTT broker (CONFIG): " + e.getMessage());
+				e.printStackTrace();
+			}
+			
 		}
 	}
 
 	
 	@Override
-	public void run() throws OpenemsNamedException {
-	   
+	public void run() throws OpenemsNamedException {	   
 	}
 
 	@Override
@@ -192,7 +190,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	protected void logError(Logger log, String message) {
 		super.logError(log, message);
 	}
-
+	
 	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {
@@ -201,38 +199,45 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		
 		switch (event.getTopic()) {
 			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE: 
-				if(!this.config.subscriber()){
-					this.sendChannelValuesWorker.collectData();
+				if(this.config.uri().contains(sendlabUri)){
+//					int timediff = Timestamp.from(Instant.now()).getSeconds() - instant.getSeconds();
+//					if ( timediff > 1 ) {
+//						//put code here
+//						instant = Timestamp.from(Instant.now());
+//				    };
+				
+					this.sendChannelValuesWorker.collectData(this.config.clientId());
 				}
 				break;
 			
 			case EdgeEventConstants.TOPIC_CONFIG_UPDATE: 
 			
-				if(!this.config.subscriber()){
-				
+				if(this.config.uri().contains(sendlabUri)){	
+					this.logInfo(log, "UPDATE!!!!!!!!!!!!!!!");
 					// Send new EdgeConfig
 					EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
-				
-					this.publish(topicPrefix + MqttApiController.TOPIC_EDGE_CONFIG, config.toJson().toString(), //
-							1 /* QOS */, true /* retain */, new MqttProperties() /* no specific properties */);
+					
+					MqttMessage msg = new MqttMessage(config.toJson().toString().getBytes(StandardCharsets.UTF_8), 1, true, new MqttProperties());
+					
+					if(mqttClientForConfig != null) {
+						try {
+							this.mqttClientForConfig.publish(this.config.clientId() + MqttApiController.TOPIC_EDGE_CONFIG, msg);
+						} catch (MqttException e) {
+							this.logError(this.log, e.getMessage());
+						}
+					}
 			
-					// Trigger sending of all channel values, because a Component might have
-					// disappeared
+//					// Trigger sending of all channel values, because a Component might have
+//					// disappeared
 					this.sendChannelValuesWorker.sendValuesOfAllChannelsOnce();
 				}
 				break;
 				
-				//TODO find out what data to send to the broker
 				//TODO find out how to get data from sensors.
 				//
-				//Example
-				//https://teams.microsoft.com/l/channel/19%3Aepsz0EZPYfoal2Gx_THoFESuBWJh2Ch4pEBNgCg7u4I1%40thread.tacv2/tab%3A%3Ac010cc5e-91d4-469d-84ca-1c2d7818164c?groupId=12067b0a-d449-42a8-9c38-dded60398970&tenantId=87c50b58-2ef2-423d-a4db-1fa7c84efcfa
-				
 				//Can be used to send data after writing
 			case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
 				
-//				this.publish("TEST/", "Test", 0, false, new MqttProperties());
-
 		}
 	}
 
@@ -296,141 +301,81 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		}
 	};
 	
-	class measurement{
-		
-		String name;
-		String description;
-		String unit;
-		
-		measurement(String name, String description, String unit){
-			this.name = name;
-			this.description = description;
-			this.unit = unit;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public String getDescription() {
-			return description;
-		}
-
-		public void setDescription(String description) {
-			this.description = description;
-		}
-
-		public String getUnit() {
-			return unit;
-		}
-
-		public void setUnit(String unit) {
-			this.unit = unit;
-		};
-
-	}
+	//sensor stuff
 	
-	protected String initv2() {
+//	protected String sensor_init() {
+//	
+//		Map<String, Object> jsonData = new LinkedHashMap<>();
+//		jsonData.put("type", "simulation");
+//		jsonData.put("mode",0);
+//		jsonData.put("id", sensorId);
+//		jsonData.put("name", sensorId);
+//		
+//		LinkedHashMap<String,String> temperature = new LinkedHashMap<String,String>();		
+//		temperature.put("name", "temperature");
+//		temperature.put("description", "Temperature sensor -40 to 100 with 0.1 accuracy.");
+//		temperature.put("unit", "degree of Celsius");
+//		
+//		LinkedHashMap<String,String> humidity = new LinkedHashMap<String,String>();
+//		humidity.put("name", "humidity");
+//		humidity.put("description", "Humidity sensor 0 to 100 with 0.5 accuracy.");
+//		humidity.put("unit", "%");
+//		
+//		LinkedHashMap<String,String> windspeed = new LinkedHashMap<String,String>();
+//		humidity.put("name", "windspeed");
+//		humidity.put("description", "Windspeed sensor 0 to 1000 with 0.5 accuracy.");
+//		humidity.put("unit", "km per hour");
+//
+//		ArrayList<HashMap<String, String>> measurements = new ArrayList<HashMap<String,String>>();
+//		measurements.add(temperature);
+//		measurements.add(humidity);
+//		measurements.add(windspeed);
+//		jsonData.put("measurements", measurements);
+//
+//		LinkedHashMap<String,String> cv = new LinkedHashMap<String,String>();
+//		cv.put("name", "cv");
+//		cv.put("description", "Central heating control from 10 tp 40 degree of Celsius.");
+//		cv.put("unit", "degree of Celsius");
+//
+//		ArrayList<HashMap<String, String>> actuators = new ArrayList<HashMap<String,String>>();
+//		actuators.add(cv);
+//		jsonData.put("actuators", actuators);
+//		
+//		 Gson g = new Gson();
+//		 return g.toJson(jsonData);
+//	}
+//	
 	
-		Map<String, Object> sensor_init = new LinkedHashMap<>();
-		
-		sensor_init.put("type", "simulation");
-		sensor_init.put("mode",0);
-		sensor_init.put("id", sensorId);
-		sensor_init.put("name", sensorId);
-		
-		 measurement[] measurements = new measurement[] {		
-				new measurement(
-				   		"temperature",
-				   		"Temperature sensor -40 to 100 with 0.1 accuracy.",
-				    	"degree of Celsius"
-		    	), new measurement(
-		    			"humidity",
-		    	        "Humidity sensor 0 to 100 with 0.5 accuracy.",
-		    	        "%"
-		    	),
-		 };
-		 
-		 sensor_init.put("measurements", measurements);
-		
-		 measurement[] actuators = new measurement[] {	
-				 new measurement(
-		 
-					"cv",
-				    "Central heating control from 10 tp 40 degree of Celsius.",
-				    "degree of Celsius"
-		    )
-		 };
-		 
-		 sensor_init.put("actuators", actuators);
-		
-		 Gson g = new Gson();
-		 return g.toJson(sensor_init);
-	}
-	
-	class meterData {
-
-		String timestamp;
-		double temperature;
-		double humidity;
-		
-		meterData(String timestamp, double temperature, double humidity){
-			this.timestamp = timestamp;
-			this.temperature = temperature;
-			this.humidity = humidity;
-		}
-		
-
-		public String getTimestamp() {
-			return timestamp;
-		}
-
-		public void setTimestamp(String timestamp) {
-			this.timestamp = timestamp;
-		}
-
-		public double getTemperature() {
-			return temperature;
-		}
-
-		public void setTemperature(double temperature) {
-			this.temperature = temperature;
-		}
-
-		public double getHumidity() {
-			return humidity;
-		}
-
-		public void setHumidity(double humidity) {
-			this.humidity = humidity;
-		}
-
-	}
-
-	protected String testDatav2(int temp, int humidity) {
-		
-		Map<String, Object> data = new LinkedHashMap<>();
-		
-		Timestamp instant= Timestamp.from(Instant.now());
-		String time = instant.toString();
-
-		String[] s = time.split(" ");
-		String b = s[0]; 
-		String c = s[1]; 
-		time = b + "T" + c;
-		
-		data.put("id",sensorId);
-		data.put("timestamp", time);
-		meterData[] measurements = new meterData[] {
-			new meterData(time,temp,humidity)
-		};
-		data.put("measurements", measurements);
-		
-		Gson g = new Gson();
-		return g.toJson(data);
-	}
+//	protected String sensor_data(double temp, double humidity, double windspeed) {
+//		
+//		Map<String, Object> jsonData = new LinkedHashMap<>();
+//		
+//		Timestamp instant= Timestamp.from(Instant.now());
+//		String time = instant.toString();
+//
+//		String[] s = time.split(" ");
+//		String b = s[0]; 
+//		String c = s[1]; 
+//		time = b + "T" + c;
+//		
+//		jsonData.put("id",sensorId);
+//		jsonData.put("timestamp", time);
+//		
+//		LinkedHashMap<String,Object> data = new LinkedHashMap<String,Object>();
+//		data.put("timestamp", time);
+//		data.put("temperature", temp);
+//		data.put("humidity", humidity);
+//		if(windspeed != -1) {
+//			data.put("windspeed",windspeed);
+//		}
+//	
+//		ArrayList<HashMap<String, Object>> measurements = new ArrayList<HashMap<String,Object>>();
+//		measurements.add(data);
+//	
+//		jsonData.put("measurements", measurements);
+//		
+//		Gson g = new Gson();
+//		return g.toJson(jsonData);
+//	}
+//	
 }

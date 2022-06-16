@@ -1,8 +1,11 @@
 package io.openems.edge.controller.api.mqtt.custom;
 
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
 import io.openems.common.channel.AccessMode;
@@ -89,20 +93,29 @@ public class SendChannelValuesWorker {
 		// Shutdown executor
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 	}
+	
+	boolean firstTime = true;
 
 	/**
 	 * Called synchronously on AFTER_PROCESS_IMAGE event. Collects all the data and
 	 * triggers asynchronous sending.
 	 */
-	public synchronized void collectData() {
+	public synchronized void collectData(String id) {
 		Instant now = Instant.now(this.parent.componentManager.getClock());
 
 		// Update the values of all channels
 		final List<OpenemsComponent> enabledComponents = this.parent.componentManager.getEnabledComponents();
 		final ImmutableTable<String, String, JsonElement> allValues = this.collectData(enabledComponents);
+		
+		//Prints entire table per row
+		//this.parent.logInfo(log, "table: " + allValues.toString());
 
 		// Add to send Queue
-		this.executor.execute(new SendTask(this, now, allValues));
+		this.executor.execute(new SendTask(this, now, allValues,firstTime, id));
+		
+		if(firstTime) {
+			firstTime = false;
+		}
 	}
 
 	/**
@@ -150,14 +163,19 @@ public class SendChannelValuesWorker {
 		private final SendChannelValuesWorker parent;
 		private final Instant timestamp;
 		private final ImmutableTable<String, String, JsonElement> allValues;
+		
+		private final boolean firstTime;
+		private final String id;
 
 		public SendTask(SendChannelValuesWorker parent, Instant timestamp,
-				ImmutableTable<String, String, JsonElement> allValues) {
+				ImmutableTable<String, String, JsonElement> allValues, boolean firstTime, String id) {
 			this.parent = parent;
 			this.timestamp = timestamp;
-			this.allValues = allValues;
+			this.allValues = allValues;	
+			this.firstTime = firstTime;
+			this.id = id;
 		}
-
+		
 		@Override
 		public void run() {
 			// Holds the data of the last successful send. If the table is empty, it is also
@@ -177,7 +195,30 @@ public class SendChannelValuesWorker {
 				// Actually use the kept 'lastSentValues'
 				lastAllValues = this.parent.lastAllValues;
 			}
+			
+			Map<String, Object> jsonData = new LinkedHashMap<>();
+			if(firstTime) {
+				jsonData.put("type", "simulation");
+				jsonData.put("mode",0);
+				jsonData.put("id", id);
+				jsonData.put("name", id);
+			}else {
+				Timestamp instant= Timestamp.from(Instant.now());
+				String time = instant.toString();
 
+				String[] s = time.split(" ");
+				String b = s[0]; 
+				String c = s[1]; 
+				time = b + "T" + c;
+				
+				jsonData.put("id",id);
+				jsonData.put("timestamp", time);
+			}
+			
+			ArrayList<HashMap<String, Object>> measurements = new ArrayList<HashMap<String,Object>>();
+			
+			LinkedHashMap<String,Object> m = new LinkedHashMap<String,Object>();
+			
 			// Send changed values
 			boolean allSendSuccessful = true;
 			List<String> sendTopics = new ArrayList<>();
@@ -186,6 +227,13 @@ public class SendChannelValuesWorker {
 					if (!Objects.equals(column.getValue(), lastAllValues.get(row.getKey(), column.getKey()))) {
 						String subtopic = row.getKey() + "/" + column.getKey();
 						sendTopics.add(subtopic);
+						
+						if(firstTime) {
+							measurements.add(create_mqtt_init_map(subtopic,subtopic,column.getValue().getClass().toString()));
+						}else {
+							m.put(subtopic,column.getValue().toString());
+						}
+						
 						//sends the topic
 						if (!this.publish(row.getKey() + "/" + column.getKey(), column.getValue().toString())) {
 							allSendSuccessful = false;
@@ -193,14 +241,28 @@ public class SendChannelValuesWorker {
 					}
 				}
 			}
+			
+			if(!firstTime) {
+				measurements.add(m);
+			}
+			jsonData.put("measurements", measurements);
+			
+			Gson g = new Gson();
+			String parsedData = g.toJson(jsonData);
+			if(firstTime) {
+				this.parent.parent.publish("node/init", parsedData, 0, true, new MqttProperties()); 
 
+			}else {
+				this.parent.parent.publish("node/data", parsedData,0, true, new MqttProperties());
+			}
+			
 			// Update lastUpdate timestamp
 			this.publish(MqttApiController.TOPIC_CHANNEL_LAST_UPDATE, String.valueOf(this.timestamp));
 
 			// Successful?
 			if (allSendSuccessful) {
-				this.parent.parent.logInfo(this.parent.log, "Successfully sent MQTT topics: "
-						+ StringUtils.toShortString(String.join(", ", sendTopics), 100));
+//				this.parent.parent.logInfo(this.parent.log, "Successfully sent MQTT topics: "
+//						+ StringUtils.toShortString(String.join(", ", sendTopics), 10000));
 			
 				// update information for next runs
 				this.parent.lastAllValues = this.allValues;
@@ -222,15 +284,24 @@ public class SendChannelValuesWorker {
 		 * @return true if sent successfully; false otherwise
 		 */
 		private boolean publish(String subTopic, String value) {
-//			return true;
+			return true;
 			
-			return this.parent.parent.publish(//
-					/* topic */ MqttApiController.TOPIC_CHANNEL_PREFIX + subTopic, //
-					/* message */ value.toString(), //
-					MQTT_QOS, MQTT_RETAIN, MQTT_PROPERTIES //
-			);
+//			return this.parent.parent.publish(//
+//					/* topic */ MqttApiController.TOPIC_CHANNEL_PREFIX + subTopic, //
+//					/* message */ value.toString(), //
+//					MQTT_QOS, MQTT_RETAIN, MQTT_PROPERTIES //
+//			);
 			
 		}
+		
+		private LinkedHashMap<String,Object> create_mqtt_init_map(String name, String description, String unit){
+			LinkedHashMap<String,Object> m = new LinkedHashMap<String,Object>();
+			m.put("name", name);
+			m.put("description", description);
+			m.put("unit", unit);
+			
+			return m;
+		}	
 
 	}
 

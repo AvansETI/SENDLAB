@@ -12,7 +12,7 @@ import io.openems.common.channel.PersistencePriority;
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "ctrlControllerApiMqttCustom";
+	String id() default "ctrlControllerApiMqtt";
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";
