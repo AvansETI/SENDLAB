@@ -59,15 +59,12 @@ services:
         networks:
             - emsnet
 
-
-
 networks:
     emsnet:
         name: emsnet
 volumes:
     emsedge-storage:      # For saving grafana setting records
-    influxdb-data:      
-
+    influxdb-data:
 
     # docker run --rm \
     #   -e INFLUXDB_DB=db0 \
