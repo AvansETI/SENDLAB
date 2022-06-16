@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.mqtt;
+package io.openems.edge.controller.api.mqtt.custom;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
@@ -40,7 +40,7 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.Api.MQTT", //
+@Component(name = "Controller.Api.MQTT.custom", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //

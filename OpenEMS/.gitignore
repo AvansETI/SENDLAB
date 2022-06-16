@@ -113,7 +113,6 @@ local.properties
 .mtj.tmp/
 
 # Package Files #
-*.jar
 !RXTXcomm.jar
 !json-logic-java-1.0.0.jar
 !librevpi-dio-java.jar
@@ -195,9 +194,6 @@ typings/
 
 # Yarn Integrity file
 .yarn-integrity
-
-# dotenv environment variables file
-.env
 
 ### Gradle ###
 .gradle
