@@ -200,12 +200,6 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		switch (event.getTopic()) {
 			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE: 
 				if(this.config.uri().contains(sendlabUri)){
-//					int timediff = Timestamp.from(Instant.now()).getSeconds() - instant.getSeconds();
-//					if ( timediff > 1 ) {
-//						//put code here
-//						instant = Timestamp.from(Instant.now());
-//				    };
-				
 					this.sendChannelValuesWorker.collectData(this.config.clientId());
 				}
 				break;
@@ -213,15 +207,14 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 			case EdgeEventConstants.TOPIC_CONFIG_UPDATE: 
 			
 				if(this.config.uri().contains(sendlabUri)){	
-					this.logInfo(log, "UPDATE!!!!!!!!!!!!!!!");
 					// Send new EdgeConfig
 					EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
 					
-					MqttMessage msg = new MqttMessage(config.toJson().toString().getBytes(StandardCharsets.UTF_8), 1, true, new MqttProperties());
+					MqttMessage msg = new MqttMessage(config.toJson().toString().getBytes(StandardCharsets.UTF_8), 0, true, new MqttProperties());
 					
 					if(mqttClientForConfig != null) {
 						try {
-							this.mqttClientForConfig.publish(this.config.clientId() + MqttApiController.TOPIC_EDGE_CONFIG, msg);
+							this.mqttClientForConfig.publish(this.config.clientId() + "/" + MqttApiController.TOPIC_EDGE_CONFIG, msg);
 						} catch (MqttException e) {
 							this.logError(this.log, e.getMessage());
 						}

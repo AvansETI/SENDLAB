@@ -94,7 +94,7 @@ public class SendChannelValuesWorker {
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 	}
 	
-	boolean firstTime = true;
+	boolean isInit = true;
 
 	/**
 	 * Called synchronously on AFTER_PROCESS_IMAGE event. Collects all the data and
@@ -108,14 +108,10 @@ public class SendChannelValuesWorker {
 		final ImmutableTable<String, String, JsonElement> allValues = this.collectData(enabledComponents);
 		
 		//Prints entire table per row
-		//this.parent.logInfo(log, "table: " + allValues.toString());
+//		this.parent.logInfo(log, "table: " + allValues.toString());
 
 		// Add to send Queue
-		this.executor.execute(new SendTask(this, now, allValues,firstTime, id));
-		
-		if(firstTime) {
-			firstTime = false;
-		}
+		this.executor.execute(new SendTask(this, now, allValues, id));
 	}
 
 	/**
@@ -164,15 +160,13 @@ public class SendChannelValuesWorker {
 		private final Instant timestamp;
 		private final ImmutableTable<String, String, JsonElement> allValues;
 		
-		private final boolean firstTime;
 		private final String id;
 
 		public SendTask(SendChannelValuesWorker parent, Instant timestamp,
-				ImmutableTable<String, String, JsonElement> allValues, boolean firstTime, String id) {
+				ImmutableTable<String, String, JsonElement> allValues, String id) {
 			this.parent = parent;
 			this.timestamp = timestamp;
-			this.allValues = allValues;	
-			this.firstTime = firstTime;
+			this.allValues = allValues;
 			this.id = id;
 		}
 		
@@ -197,9 +191,9 @@ public class SendChannelValuesWorker {
 			}
 			
 			Map<String, Object> jsonData = new LinkedHashMap<>();
-			if(firstTime) {
+			if(this.parent.isInit) {
 				jsonData.put("type", "simulation");
-				jsonData.put("mode",0);
+				jsonData.put("mode", 0);
 				jsonData.put("id", id);
 				jsonData.put("name", id);
 			}else {
@@ -215,23 +209,31 @@ public class SendChannelValuesWorker {
 				jsonData.put("timestamp", time);
 			}
 			
-			ArrayList<HashMap<String, Object>> measurements = new ArrayList<HashMap<String,Object>>();
+			ArrayList<HashMap<String, String>> measurementsInit = new ArrayList<HashMap<String,String>>();
+			ArrayList<HashMap<String, Object>> measurementsData = new ArrayList<HashMap<String,Object>>();
 			
-			LinkedHashMap<String,Object> m = new LinkedHashMap<String,Object>();
+			LinkedHashMap<String,String> mapInit = new LinkedHashMap<String,String>();
+			LinkedHashMap<String,Object> mapData = new LinkedHashMap<String,Object>();
 			
 			// Send changed values
 			boolean allSendSuccessful = true;
-			List<String> sendTopics = new ArrayList<>();
 			for (Entry<String, Map<String, JsonElement>> row : this.allValues.rowMap().entrySet()) {
 				for (Entry<String, JsonElement> column : row.getValue().entrySet()) {
 					if (!Objects.equals(column.getValue(), lastAllValues.get(row.getKey(), column.getKey()))) {
 						String subtopic = row.getKey() + "/" + column.getKey();
-						sendTopics.add(subtopic);
 						
-						if(firstTime) {
-							measurements.add(create_mqtt_init_map(subtopic,subtopic,column.getValue().getClass().toString()));
+						if(this.parent.isInit ) {
+							
+							//this does not work
+							mapInit = new LinkedHashMap<String,String>();
+							mapInit.put("name", subtopic);
+							mapInit.put("description", subtopic);
+							mapInit.put("unit", "class com.google.gson.JsonPrimitive");
+
+							measurementsInit.add(mapInit);
+							
 						}else {
-							m.put(subtopic,column.getValue().toString());
+							mapData.put(subtopic,column.getValue().toString());
 						}
 						
 						//sends the topic
@@ -241,28 +243,29 @@ public class SendChannelValuesWorker {
 					}
 				}
 			}
-			
-			if(!firstTime) {
-				measurements.add(m);
-			}
-			jsonData.put("measurements", measurements);
-			
-			Gson g = new Gson();
-			String parsedData = g.toJson(jsonData);
-			if(firstTime) {
-				this.parent.parent.publish("node/init", parsedData, 0, true, new MqttProperties()); 
 
-			}else {
-				this.parent.parent.publish("node/data", parsedData,0, true, new MqttProperties());
-			}
+			Gson g = new Gson();
+			String parsedData;
 			
-			// Update lastUpdate timestamp
-			this.publish(MqttApiController.TOPIC_CHANNEL_LAST_UPDATE, String.valueOf(this.timestamp));
+			if(this.parent.isInit) {				
+				jsonData.put("measurements", measurementsInit);
+				
+				parsedData = g.toJson(jsonData);
+				if(this.publish("node/init", parsedData)) {
+					this.parent.isInit = false;
+				}
+				
+			}else {			
+				measurementsData.add(mapData);
+				jsonData.put("measurements", measurementsData);
+				
+				parsedData = g.toJson(jsonData);
+				this.publish("node/data", parsedData);
+			}
 
 			// Successful?
 			if (allSendSuccessful) {
-//				this.parent.parent.logInfo(this.parent.log, "Successfully sent MQTT topics: "
-//						+ StringUtils.toShortString(String.join(", ", sendTopics), 10000));
+				this.printLog("Sucessfully sent MQTT data to broker");
 			
 				// update information for next runs
 				this.parent.lastAllValues = this.allValues;
@@ -271,8 +274,7 @@ public class SendChannelValuesWorker {
 					this.parent.lastSendValuesOfAllChannels = this.timestamp;
 				}
 			} else {
-				this.parent.parent.logWarn(this.parent.log, "Error while sending MQTT topics: "
-						+ StringUtils.toShortString(String.join(", ", sendTopics), 100));
+				this.parent.parent.logWarn(this.parent.log, "Error while sending MQTT data to broker");
 			}
 		}
 
@@ -283,25 +285,13 @@ public class SendChannelValuesWorker {
 		 * @param value    the value Json.toString()
 		 * @return true if sent successfully; false otherwise
 		 */
-		private boolean publish(String subTopic, String value) {
-			return true;
-			
-//			return this.parent.parent.publish(//
-//					/* topic */ MqttApiController.TOPIC_CHANNEL_PREFIX + subTopic, //
-//					/* message */ value.toString(), //
-//					MQTT_QOS, MQTT_RETAIN, MQTT_PROPERTIES //
-//			);
-			
+		private boolean publish(String topic, String value) {
+			return this.parent.parent.publish(topic, value, 0, true, new MqttProperties());	
 		}
 		
-		private LinkedHashMap<String,Object> create_mqtt_init_map(String name, String description, String unit){
-			LinkedHashMap<String,Object> m = new LinkedHashMap<String,Object>();
-			m.put("name", name);
-			m.put("description", description);
-			m.put("unit", unit);
-			
-			return m;
-		}	
+		private void printLog(String value) {
+			this.parent.parent.logInfo(this.parent.log, value);
+		}
 
 	}
 
