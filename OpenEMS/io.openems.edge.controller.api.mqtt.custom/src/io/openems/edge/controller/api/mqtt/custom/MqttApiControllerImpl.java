@@ -52,7 +52,7 @@ import io.openems.edge.timedata.api.Timedata;
 public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		implements MqttApiController, Controller, OpenemsComponent, EventHandler {
 
-	protected static final String COMPONENT_NAME = "Controller.Api.MQTT";
+	protected static final String COMPONENT_NAME = "Controller.Api.MQTT.Custom";
 
 	private final Logger log = LoggerFactory.getLogger(MqttApiControllerImpl.class);
 	private final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
@@ -78,39 +78,45 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 
 	private IMqttClient mqttClient = null;
 	private IMqttClient mqttClientForConfig = null;
+	protected Instant currentTime;
 	
 	@Activate
 	void activate(ComponentContext context, Config config) throws Exception {
 		this.config = config;
 
 		super.activate(context, config.id(), config.alias(), config.enabled());
+
+		this.currentTime = Instant.now(this.componentManager.getClock());
 		
+		/**
+		 * Connects to the MQTT broker. Sets info based on config data.
+		 */
 		this.mqttConnector.connect(config.uri(), config.clientId(), config.username(), config.password())
 			.thenAccept(client -> {
 				this.mqttClient = client;				
 				if(this.mqttClient.isConnected()) {
 					this.logInfo(this.log, "Connected to MQTT Broker [" + config.uri() + "]");
-				}
 				
-				if(config.subscriber()) {
-
-					//Enum class makes dropdown menu in ui.
-					this.mqttClient.setCallback(getCallback(config.type()));
-					
-					//Need to figure out how to refresh connection when new conenction is made or app is refreshed.
-					for(String topic : config.topic()) {
-						this.subscribe(topic, 0);
-					}
-					
-					if(config.uri().contains(sendlabUri)) {
-						this.subscribe("node/" + config.clientId() + "/message", 0); 
-						this.subscribe("node/" + config.clientId() + "/data", 0);
+					if(config.subscriber()) {
 						
+						this.mqttClient.setCallback(getCallback(config.type()));
+						
+						for(String topic : config.topic()) {
+							this.subscribe(topic, 1);
+						}
+						
+						if(config.uri().contains(sendlabUri)) {
+							this.subscribe("node/" + config.clientId() + "/message", 0); 
+							this.subscribe("node/" + config.clientId() + "/data", 0);
+							
+						}
 					}
-			
 				}
 			});		
 		
+		/**
+		 * Connects to the MQTT broker (only for config data).
+		 */
 		if(config.uri().contains(sendlabUri)) {
 			this.mqttConnectorForConfig.connect(config.uri(), config.clientId(), config.username(), config.password())
 			.thenAccept(client -> {
@@ -122,6 +128,12 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		}
 	}
 	
+	/**
+	 * Selects the callback based on input type.
+	 * 
+	 * @param type 		A selection of meters that are connected to OpenEMS. Can be selected from the ui.
+	 * @return MqttCallback.
+	 */
 	protected MqttApiCallbackImpl getCallback(NodeType type) {
 		switch (type){
 		case SMARTMETER:
@@ -129,6 +141,9 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 			
 		case SOLAREDGE:
 			//TODO implement Solaredge callback.
+			
+		case POWERWALL:
+			//TODO implement Powerwall callback.
 		
 		case DEFAULT :
 			return new MqttApiCallbackImpl();
@@ -138,6 +153,9 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	/**
+	 * Disables all clients and connectors.
+	 */
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -171,7 +189,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	
+	//Does nothing
 	@Override
 	public void run() throws OpenemsNamedException {	   
 	}
@@ -183,7 +201,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 
 	@Override
 	protected void logWarn(Logger log, String message) {
-		super.logInfo(log, message);
+		super.logWarn(log, message);
 	}
 	
 	@Override
@@ -191,6 +209,9 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		super.logError(log, message);
 	}
 	
+	/**
+	 * Handles events based on event topics.
+	 */
 	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {
@@ -200,12 +221,22 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		switch (event.getTopic()) {
 			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE: 
 				if(this.config.uri().contains(sendlabUri)){
+					/**
+					 * Collects data from OpenEMS and sends to broker.
+					 */
 					this.sendChannelValuesWorker.collectData(this.config.clientId());
 				}
 				break;
 			
 			case EdgeEventConstants.TOPIC_CONFIG_UPDATE: 
 			
+				/**
+				 * Collects config data and sends it to the broker.
+				 * TODO - Doesn't work based on the mqtt broker settings. 
+				 * 			Need to be in format of node/init and node/data
+				 * 			node/init - info of what will be sent.
+				 * 			node/data - actual data that will be sent to the broker.
+				 */
 				if(this.config.uri().contains(sendlabUri)){	
 					// Send new EdgeConfig
 					EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
@@ -226,9 +257,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 				}
 				break;
 				
-				//TODO find out how to get data from sensors.
-				//
-				//Can be used to send data after writing
+				//Could be used to send data after writing
 			case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
 				
 		}
@@ -237,8 +266,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	/**
 	 * Publish a message to a topic.
 	 * 
-	 * @param subTopic the MQTT topic. The global MQTT Topic prefix is added in
-	 *                 front of this string
+	 * @param subTopic the MQTT topic. 
 	 * @param message  the message
 	 * @return true if message was successfully published; false otherwise
 	 */
@@ -249,8 +277,8 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		}
 		try {
 			if(mqttClient.isConnected()) {
-				this.logInfo(log, "Publish [" + message + "]");
 				mqttClient.publish(subTopic, message);
+				this.logInfo(log, "Publish [" + message + "]");
 				return true;
 			}
 			return false;
@@ -263,8 +291,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	/**
 	 * Publish a message to a topic.
 	 * 
-	 * @param subTopic   the MQTT topic. The global MQTT Topic prefix is added in
-	 *                   front of this string
+	 * @param subTopic   the MQTT topic. 
 	 * @param message    the message; internally translated to a UTF-8 byte array
 	 * @param qos        the MQTT QOS
 	 * @param retained   the MQTT retained parameter
@@ -276,6 +303,13 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		return this.publish(subTopic, msg);
 	}
 	
+	/**
+	 * Subscribe to a topic.
+	 * 
+	 * @param topic		 the MQTT topic. 
+	 * @param qos  		 the MQTT QOS
+	 * @return true if topic was successfully subscribed to; false otherwise.
+	 */
 	protected boolean subscribe(String topic, int qos) {
 		IMqttClient mqttClient = this.mqttClient;
 		if (mqttClient == null) {
@@ -283,92 +317,19 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		}
 		try {
 			if(mqttClient.isConnected()) {
-				this.logInfo(log, "Subscribed to [" + topic + "]");
 				mqttClient.subscribe(topic, qos);
+				this.logInfo(log, "Subscribed to [" + topic + "]");
 				return true;
 			}
 			return false;
 		} catch (MqttException e) {
-			this.logError(log, e.getMessage());
+			String error = e.getMessage();
+			this.logError(log, error);
+			if(error.equals("Connection lost")) {
+				this.subscribe(topic, qos);
+			}
 			return false;
 		}
 	};
 	
-	//sensor stuff
-	
-//	protected String sensor_init() {
-//	
-//		Map<String, Object> jsonData = new LinkedHashMap<>();
-//		jsonData.put("type", "simulation");
-//		jsonData.put("mode",0);
-//		jsonData.put("id", sensorId);
-//		jsonData.put("name", sensorId);
-//		
-//		LinkedHashMap<String,String> temperature = new LinkedHashMap<String,String>();		
-//		temperature.put("name", "temperature");
-//		temperature.put("description", "Temperature sensor -40 to 100 with 0.1 accuracy.");
-//		temperature.put("unit", "degree of Celsius");
-//		
-//		LinkedHashMap<String,String> humidity = new LinkedHashMap<String,String>();
-//		humidity.put("name", "humidity");
-//		humidity.put("description", "Humidity sensor 0 to 100 with 0.5 accuracy.");
-//		humidity.put("unit", "%");
-//		
-//		LinkedHashMap<String,String> windspeed = new LinkedHashMap<String,String>();
-//		humidity.put("name", "windspeed");
-//		humidity.put("description", "Windspeed sensor 0 to 1000 with 0.5 accuracy.");
-//		humidity.put("unit", "km per hour");
-//
-//		ArrayList<HashMap<String, String>> measurements = new ArrayList<HashMap<String,String>>();
-//		measurements.add(temperature);
-//		measurements.add(humidity);
-//		measurements.add(windspeed);
-//		jsonData.put("measurements", measurements);
-//
-//		LinkedHashMap<String,String> cv = new LinkedHashMap<String,String>();
-//		cv.put("name", "cv");
-//		cv.put("description", "Central heating control from 10 tp 40 degree of Celsius.");
-//		cv.put("unit", "degree of Celsius");
-//
-//		ArrayList<HashMap<String, String>> actuators = new ArrayList<HashMap<String,String>>();
-//		actuators.add(cv);
-//		jsonData.put("actuators", actuators);
-//		
-//		 Gson g = new Gson();
-//		 return g.toJson(jsonData);
-//	}
-//	
-	
-//	protected String sensor_data(double temp, double humidity, double windspeed) {
-//		
-//		Map<String, Object> jsonData = new LinkedHashMap<>();
-//		
-//		Timestamp instant= Timestamp.from(Instant.now());
-//		String time = instant.toString();
-//
-//		String[] s = time.split(" ");
-//		String b = s[0]; 
-//		String c = s[1]; 
-//		time = b + "T" + c;
-//		
-//		jsonData.put("id",sensorId);
-//		jsonData.put("timestamp", time);
-//		
-//		LinkedHashMap<String,Object> data = new LinkedHashMap<String,Object>();
-//		data.put("timestamp", time);
-//		data.put("temperature", temp);
-//		data.put("humidity", humidity);
-//		if(windspeed != -1) {
-//			data.put("windspeed",windspeed);
-//		}
-//	
-//		ArrayList<HashMap<String, Object>> measurements = new ArrayList<HashMap<String,Object>>();
-//		measurements.add(data);
-//	
-//		jsonData.put("measurements", measurements);
-//		
-//		Gson g = new Gson();
-//		return g.toJson(jsonData);
-//	}
-//	
 }

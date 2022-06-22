@@ -60,6 +60,9 @@ public class MqttConnector {
 
 	private MyConnector connector;
 
+	/**
+	 * Shutsdown connector and executor.
+	 */
 	protected synchronized void deactivate() {
 		this.connector = null;
 		this.executor.shutdownNow();
@@ -70,6 +73,17 @@ public class MqttConnector {
 		return this.connect(serverUri, clientId, username, password, null);
 	}
 
+	/**
+	 * Async method for connecting to the MQTTclient.
+	 * @param serverUri	The MQTT broker address.
+	 * @param clientId 	The MQTT broker client ID.
+	 * @param username	The username to connect to the MQTT broker.
+	 * @param password	The password to connect to the MQTT broker.
+	 * @param callback	The callback to receive MQTT messages from a topic.
+	 * @return
+	 * @throws IllegalArgumentException
+	 * @throws MqttException
+	 */
 	protected synchronized CompletableFuture<IMqttClient> connect(String serverUri, String clientId, String username,
 			String password, MqttCallback callback) throws IllegalArgumentException, MqttException {
 		IMqttClient client = new MqttClient(serverUri, clientId);
@@ -84,6 +98,7 @@ public class MqttConnector {
 		}
 		options.setAutomaticReconnect(true);
 		options.setCleanStart(true);
+		options.setKeepAliveInterval(30);
 		options.setConnectionTimeout(10); //10
 
 		this.connector = new MyConnector(client, options);
@@ -92,6 +107,9 @@ public class MqttConnector {
 		return this.connector.result;
 	}
 
+	/**
+	 * Tries to reconnect to the broker.
+	 */
 	private void waitAndRetry() {
 		this.waitSeconds.getAndUpdate(oldValue -> Math.min(oldValue + INCREASE_WAIT_SECONDS, MAX_WAIT_SECONDS));
 		this.executor.schedule(this.connector, this.waitSeconds.get(), TimeUnit.SECONDS);

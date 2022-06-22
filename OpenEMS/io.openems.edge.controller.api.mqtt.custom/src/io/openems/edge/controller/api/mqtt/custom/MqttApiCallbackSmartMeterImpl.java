@@ -39,15 +39,19 @@ public class MqttApiCallbackSmartMeterImpl extends MqttApiCallbackImpl {
 		super.disconnected(arg0);
 	}
 
+	/**
+	 * Method parses the JsonObject based on Smartmeter values.
+	 */
 	@Override
 	public void messageArrived(String arg0, MqttMessage arg1) throws Exception {
+		this.log.info("messageArrived");
 		super.messageArrived(arg0, arg1);
 		
 		//Parses Smartmeter data
 		JsonObject o = JsonUtils.parseToJsonObject(arg1.toString());
 		String id = JsonUtils.getAsString(o,"id");
-		JsonElement ar= o.get("measurements").getAsJsonArray().get(0);
-	
+		JsonElement ar = o.get("measurements").getAsJsonArray().get(0);
+			
 		double energy_delivered_tarrif_1 = JsonUtils.getAsDouble(ar,"energy_delivered_tarrif_1");
 		double energy_delivered_tarrif_2  = JsonUtils.getAsDouble(ar,"energy_delivered_tarrif_2");
 		double energy_received_tarrif_1 = JsonUtils.getAsDouble(ar,"energy_received_tarrif_1");
@@ -88,6 +92,34 @@ public class MqttApiCallbackSmartMeterImpl extends MqttApiCallbackImpl {
 //				"energy_received": 9.693000000000001, 
 //				"timestamp": "2022-05-25T11:14:27.641950+00:00"}]
 //		}
+
+		//test data
+//		try {
+//		String timestamp = JsonUtils.getAsString(ar,"timestamp");
+//		double temperature = JsonUtils.getAsDouble(ar,"temperature");
+//		double light = JsonUtils.getAsDouble(ar,"light");
+//		double occ = JsonUtils.getAsDouble(ar,"occ");
+//		double audio = JsonUtils.getAsDouble(ar,"audio");
+//		
+//		this.log.info(id);
+//		this.log.info(timestamp);
+//		this.log.info(temperature + "");
+//		this.log.info(light + "");
+//		this.log.info(occ + "");
+//		this.log.info(audio + "");
+//		
+//		}catch(Exception e) {
+//			this.log.info(e.getMessage());
+//		}
+//
+		//sensor_simulation_0 data example
+//		{"id": "sensor_simulation_0", 
+//		"measurements": [
+//		{"timestamp": "2022-06-22T10:14:27.732557+00:00", 
+//		"temperature": 22.066885414413168, 
+//		"light": 51.353568178818136, 
+//		"occ": 4.023520829897165, 
+//		"audio": 24.01425830463947}]}
 		
 	}
 

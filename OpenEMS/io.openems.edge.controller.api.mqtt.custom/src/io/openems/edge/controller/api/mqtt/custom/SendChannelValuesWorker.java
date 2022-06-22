@@ -74,7 +74,16 @@ public class SendChannelValuesWorker {
 	 * Keeps the values of last successful send.
 	 */
 	private Table<String, String, JsonElement> lastAllValues = ImmutableTable.of();
+	
+	/**
+	 * Boolean to send the init message to the MQTT broker.
+	 */
+	protected boolean isInit = true;
 
+	/**
+	 * Sets the parent.
+	 * @param parent The parent class of SendChannelValuesWorker.
+	 */
 	protected SendChannelValuesWorker(MqttApiControllerImpl parent) {
 		this.parent = parent;
 	}
@@ -93,8 +102,6 @@ public class SendChannelValuesWorker {
 		// Shutdown executor
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 	}
-	
-	boolean isInit = true;
 
 	/**
 	 * Called synchronously on AFTER_PROCESS_IMAGE event. Collects all the data and
@@ -106,9 +113,6 @@ public class SendChannelValuesWorker {
 		// Update the values of all channels
 		final List<OpenemsComponent> enabledComponents = this.parent.componentManager.getEnabledComponents();
 		final ImmutableTable<String, String, JsonElement> allValues = this.collectData(enabledComponents);
-		
-		//Prints entire table per row
-//		this.parent.logInfo(log, "table: " + allValues.toString());
 
 		// Add to send Queue
 		this.executor.execute(new SendTask(this, now, allValues, id));
@@ -155,6 +159,8 @@ public class SendChannelValuesWorker {
 	 */
 
 	private static class SendTask implements Runnable {
+		
+		private static final int WaitTimeInSeconds = 15;
 
 		private final SendChannelValuesWorker parent;
 		private final Instant timestamp;
@@ -190,9 +196,12 @@ public class SendChannelValuesWorker {
 				lastAllValues = this.parent.lastAllValues;
 			}
 			
+			/**
+			 * Collects the data
+			 */	
 			Map<String, Object> jsonData = new LinkedHashMap<>();
 			if(this.parent.isInit) {
-				jsonData.put("type", "simulation");
+				jsonData.put("type", "simulation"); //Don't know the other types that the server accepts.
 				jsonData.put("mode", 0);
 				jsonData.put("id", id);
 				jsonData.put("name", id);
@@ -210,36 +219,31 @@ public class SendChannelValuesWorker {
 			}
 			
 			ArrayList<HashMap<String, String>> measurementsInit = new ArrayList<HashMap<String,String>>();
-			ArrayList<HashMap<String, Object>> measurementsData = new ArrayList<HashMap<String,Object>>();
-			
 			LinkedHashMap<String,String> mapInit = new LinkedHashMap<String,String>();
+			
+			ArrayList<HashMap<String, Object>> measurementsData = new ArrayList<HashMap<String,Object>>();
 			LinkedHashMap<String,Object> mapData = new LinkedHashMap<String,Object>();
 			
 			// Send changed values
-			boolean allSendSuccessful = true;
+			boolean allSendSuccessful = false;
 			for (Entry<String, Map<String, JsonElement>> row : this.allValues.rowMap().entrySet()) {
 				for (Entry<String, JsonElement> column : row.getValue().entrySet()) {
 					if (!Objects.equals(column.getValue(), lastAllValues.get(row.getKey(), column.getKey()))) {
 						String subtopic = row.getKey() + "/" + column.getKey();
 						
-						if(this.parent.isInit ) {
+						if(this.parent.isInit) {
 							
-							//this does not work
 							mapInit = new LinkedHashMap<String,String>();
 							mapInit.put("name", subtopic);
 							mapInit.put("description", subtopic);
-							mapInit.put("unit", "class com.google.gson.JsonPrimitive");
+							mapInit.put("unit", "String");
 
 							measurementsInit.add(mapInit);
 							
 						}else {
 							mapData.put(subtopic,column.getValue().toString());
 						}
-						
-						//sends the topic
-						if (!this.publish(row.getKey() + "/" + column.getKey(), column.getValue().toString())) {
-							allSendSuccessful = false;
-						}
+			
 					}
 				}
 			}
@@ -247,12 +251,24 @@ public class SendChannelValuesWorker {
 			Gson g = new Gson();
 			String parsedData;
 			
+			/**
+			 * Publishes data to the MQTT broker.
+			 */
 			if(this.parent.isInit) {				
 				jsonData.put("measurements", measurementsInit);
 				
 				parsedData = g.toJson(jsonData);
-				if(this.publish("node/init", parsedData)) {
-					this.parent.isInit = false;
+				
+				int timeDifference = Timestamp.from(timestamp).getSeconds() - Timestamp.from(this.parent.parent.currentTime).getSeconds();
+				
+				/**
+				 * Waits a bit to collect the data and then send it to the broker.
+				 */
+				if(timeDifference >= WaitTimeInSeconds) {
+					if(this.publish("node/init", parsedData)) {
+						this.parent.isInit = false;
+						allSendSuccessful = true;
+					}
 				}
 				
 			}else {			
@@ -260,7 +276,9 @@ public class SendChannelValuesWorker {
 				jsonData.put("measurements", measurementsData);
 				
 				parsedData = g.toJson(jsonData);
-				this.publish("node/data", parsedData);
+				if(this.publish("node/data", parsedData)) {
+					allSendSuccessful = true;
+				}
 			}
 
 			// Successful?
@@ -273,8 +291,6 @@ public class SendChannelValuesWorker {
 					// 'lastSentValues' was empty, i.e. all values were sent
 					this.parent.lastSendValuesOfAllChannels = this.timestamp;
 				}
-			} else {
-				this.parent.parent.logWarn(this.parent.log, "Error while sending MQTT data to broker");
 			}
 		}
 

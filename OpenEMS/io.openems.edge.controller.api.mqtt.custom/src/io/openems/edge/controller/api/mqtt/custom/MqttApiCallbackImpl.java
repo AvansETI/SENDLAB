@@ -9,13 +9,21 @@ import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Base class for mqtt callbacks. 
+ * @author Nic
+ *
+ */
 public class MqttApiCallbackImpl implements MqttCallback {
 
+	/**
+	 * Empty constructor
+	 */
 	public MqttApiCallbackImpl() {
 	}
 	
 	private final Logger log = LoggerFactory.getLogger(MqttApiCallbackImpl.class);
-	 
+	
 	@Override
 	public void authPacketArrived(int arg0, MqttProperties arg1) {
 		this.log.debug("authPacketArrived");
@@ -36,6 +44,9 @@ public class MqttApiCallbackImpl implements MqttCallback {
 		this.log.debug("disconnected");
 	}
 
+	/**
+	 * Prints the message that was received. 
+	 */
 	@Override
 	public void messageArrived(String arg0, MqttMessage arg1) throws Exception {
 		this.log.info("TOPIC: " + arg0.toString() + " = " + arg1.toString());

@@ -38,11 +38,11 @@ import io.openems.common.channel.PersistencePriority;
 	@AttributeDefinition(name = "Node Type", description = "The node meter type")
 	NodeType type() default NodeType.DEFAULT;
 	
-	//Added - TODO rewrite/remove this
+	//Added
 	@AttributeDefinition(name = "Is subscriber?", description = "Is this Component a subscriber to a topic?")
 	boolean subscriber() default true;
 	
-	//Added - TODO rewrite/remove this
+	//Added
 	@AttributeDefinition(name = "Topic", description = "The topic to which to subscribe to.")
 	String[] topic();
 
