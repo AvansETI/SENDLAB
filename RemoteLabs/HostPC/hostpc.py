@@ -10,32 +10,6 @@ import base64
 
 from remotelabs.remotelabs_hostpc import RemoteLabsHostPC
 
-# SEND events
-#     - ActuatorDefinitionMessage as "actuator_definition" |
-#     - BulkSignalsMessage as "bulk_signals" |
-#     - ConfigDefinitionMessage as "config_definition" |
-#     - ConnectParamsMessage as "remote_labs_connect_params" |
-#     - ErrorMessage as "remote_labs_error" |
-#     - ExperimentResultsMessage as "experiment_results" |
-#     - FreeMessage as "free_message" |
-#     - IsBrokenMessage as "is_broken" |
-#     - SendStatusMessage as "send_status" |
-#     - SignalDefinitionMessage as "signal_definition" |
-#     - SignalValuesMessage as "signal_values"
-
-# Credentials
-# 7:X9fg2WYtJlRFe4CdGZAr
-# MauriceTest:X9fg2WYtJlRFe4CdGZAr
-
-# namespace name: hostpc
-# meta data velden: als headers bij connection attempt of los event te sturen. => Dat is de authorizatie stap
-# Testen: STAP 1
-# - Bij connectie krijg ik een STATUS berich en verwacht de server een STATUS terug.
-# - SEND_STATUS moet ik sturen
-# - Hierna alles opzetten.
-# STAP 2:
-# 
-
 # https://editor.swagger.io/
 # https://gitlab.com/wolfpackit/projects/tu-e-electrical-engineering/remote-labs/remote-labs-mock-hostpc/-/blob/develop/src/main/resources/openapi/socketio.yaml
 
