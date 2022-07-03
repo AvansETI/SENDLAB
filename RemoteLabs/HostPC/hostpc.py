@@ -13,12 +13,14 @@ from remotelabs.remotelabs_hostpc import RemoteLabsHostPC
 # https://editor.swagger.io/
 # https://gitlab.com/wolfpackit/projects/tu-e-electrical-engineering/remote-labs/remote-labs-mock-hostpc/-/blob/develop/src/main/resources/openapi/socketio.yaml
 
+# Go to the working directory of this python script
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # Create the socket.io client
 sio = socketio.Client(logger=True, engineio_logger=True, ssl_verify=False)
 
 hostpc = RemoteLabsHostPC(sio)
+hostpc.debug = True
 hostpc.start()
 
 @sio.event
@@ -85,6 +87,8 @@ def stop_experiment(data):
 def stop_recording(data):
     hostpc.event_stop_recording(data)
 
+# TODO: When the socket.io server is not available, it stops. It should start to connect
+#       Reconnection is working when it was first connected.
 sio.connect(hostpc.config["socketio_server"], {
 "Authorization": "Basic " + hostpc.get_encoded_login(),
 "RemoteLabs-Type": "HostPC"
