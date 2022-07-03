@@ -6,7 +6,8 @@
 @date	    02-07-2022
 @version	0.1
 @python     >3.4
-@info       
+@info
+@ideas      Maybe it is possible to load previous student results, based on the previous login_code?!       
 """
 
 from distutils.log import debug
@@ -46,7 +47,17 @@ class RemoteLabsHostPC(threading.Thread):
         # Experiment status variables
         self.experiment_id = -1
         self.status = "idle"
-        self.status_info = ""
+        self.status_info = "HostPC initiated"
+        self.build_experiment_data = None
+        self.stop_experiment = False
+
+        self.signal_values = {
+            "login_code": "123456TEST",
+            "login_url": "https://remotelabs.sendlab.nl/solar",
+            "user_logged_in": "false",
+            "progress": "0",
+            "message": "Please login into the experiment server."
+        }
 
         self.fsm_state = FSMStates.START
 
@@ -84,13 +95,34 @@ class RemoteLabsHostPC(threading.Thread):
     def event_error(self, data):
         pass
 
-    def event_get_status(self, data):
+    def send_status(self):
         self.sio.emit("send_status", self.get_status(), "/hostpc")
-        if ( self.fsm_state == FSMStates.START ):
+
+    def event_get_status(self, data):
+        if ( self.fsm_state == FSMStates.START ): # This events changes state
+            self.send_status() # (1)
             self.fsm_state = FSMStates.INIT
+
+        elif self.fsm_state == FSMStates.BUILD_EXPERIMENT: # (5)
+            if ( data["status"] != "building" ):
+                print("event_get_status: ERROR?!")
+            # INFO: Prepare for experimen, but everything is good to go
+            self.fsm_state = FSMStates.BUILDING
+
+    def get_experiment_files(self, data):
+        """Retrieve the experiment files from the server using the data.
+           TODO"""
+        pass
 
     def event_build_experiment(self, data):
         print("build_experiment: " + str(data))
+        if self.fsm_state == FSMStates.READY_FOR_EXPERIMENT: # (2)
+            self.build_experiment_data = data
+            self.experiment_id = data["experiment_id"]
+            self._set_status("receiving_experiment_files", "Ready for experiment")
+            self.send_status() # (3)
+            self.get_experiment_files(data) # (4)
+            self.fsm_state = FSMStates.BUILD_EXPERIMENT
 
     def event_actuator_update(self, data):
         print("actuator_update: " + str(data))
@@ -112,12 +144,21 @@ class RemoteLabsHostPC(threading.Thread):
 
     def event_start_experiment(self, data):
         print("start_experiment: " + str(data))
+        if self.fsm_state == FSMStates.START_EXPERIMENT: # (11)
+            if self.experiment_id != data["experiment_id"]:
+                print("event_start_experiment: ERROR Wrong experiment number!!")
+            # TODO: What to do when errors occur?
+            self._set_status("running", "Start experiment")
+            self.send_status() # (12)
+            self.stop_experiment = False
+            self.fsm_state = FSMStates.RUN_EXPERIMENT
 
     def event_start_recording(self, data):
         print("start_recording: " + str(data))
 
     def event_stop_experiment(self, data):
         print("stop_experiment: " + str(data))
+        self.stop_experiment = True
 
     def event_stop_recording(self, data):
         print("stop_recording: " + str(data))
@@ -144,14 +185,17 @@ class RemoteLabsHostPC(threading.Thread):
     def clean_up_vm(self):
         """This methods checks if a VM is currently running. If so, it stops the VM and
            cleans it up."""
+        time.sleep(30)
         pass
 
     def create_new_vm(self):
         """This methods create and run a new VM to be used for the experiment."""
+        time.sleep(60)
         pass
 
     def test_current_vm(self):
         """This methods test the running VM whether it can be used for the experiment."""
+        time.sleep(30)
         return True
 
     def state_prepare_vm(self):
@@ -163,31 +207,128 @@ class RemoteLabsHostPC(threading.Thread):
         self.clean_up_vm()
         self.create_new_vm()
         if ( self.test_current_vm() ):
+            self._set_status("idle", "VM is prepared for new experiment")
+            self.send_status()
             self.fsm_state = FSMStates.READY_FOR_EXPERIMENT
+        else:
+            self.debug_print("state_prepare_vm: The created VM is not working properly.")
 
     def state_ready_for_experiment(self):
-        """Waits for the get status event from the server and sends the new status back to the server. When it get the message
+        """Waits for build_experiment signal of the server. When it get the message
            'build_experiment' from the server, it will go to the next state 'BUILD_EXPERIMENT'"""
-        pass
+        self.debug_print("FSM READY_FOR_EXPERIMENT")
 
     def state_build_experiment(self):
-        """Sends a new status and requests the experiment files from the server. If done, it goes to the next state 'building'"""
-        pass
+        """Wait on the status 'building' message."""
+        self.debug_print("FSM BUILD_EXPERIMENT")
 
     def state_building(self):
         """Creates a value for the student to login into the system VM. It creates the data points for the experiment, like
            vm_login_code, progress, ... It sends out 'ready_to_start' status and goes to the next state 'start_experiment'."""
-        pass
+        self.debug_print("FSM BUILDING")
+        signal_definition = {
+            "experiment_id": self.experiment_id,
+            "signal_groups": [
+                {
+                    "name": "VM",
+                    "signal_definitions": [
+                        {
+                            "name": "login_code",
+                            "type": "string"
+                        },
+                        {
+                            "name": "login_url",
+                            "type": "string"
+                        },
+                        {
+                            "name": "user_logged_in",
+                            "type": "boolean"
+                        }
+                    ]
+                },
+                {
+                    "name": "Experiment",
+                    "signal_definitions": [
+                        {
+                            "name": "progress",
+                            "type": "int"
+                        },
+                        {
+                            "name": "message",
+                            "type": "string"
+                        }
+                    ]
+                }
+
+            ]
+        }
+        self.sio.emit("signal_definition", signal_definition, "/hostpc") # (7)
+        actuator_definition = {
+            "experiment_id": self.experiment_id,
+            "actuators": []
+        }
+        self.sio.emit("actuator_definition", actuator_definition, "/hostpc") # (8)
+        self._set_status("ready_to_start", "Building")
+        self.send_status() # (9)
+        self.fsm_state = FSMStates.START_EXPERIMENT
 
     def state_start_experiment(self):
-        """"""
-        pass
+        """Wait for the start_experiment message from the server."""
+        self.debug_print("FSM START_EXPERIMENT")
 
     def state_run_experiment(self):
-        pass
+        """The experiment is running. Check the VM wheter someone has logged in and check the experiment progress. This data
+           can be send back. When the user is logged out and is not coming back for 15 minutes, the experiment can be seen as
+           stopped."""
+        self.debug_print("FSM RUN_EXPERIMENT")
+        signal_values = {
+            "experiment_id": self.experiment_id,
+            "signal_values": [
+                {
+                    "group_name": "VM",
+                    "name": "login_code",
+                    "value": self.signal_values["login_code"]
+                },
+                {
+                    "group_name": "VM",
+                    "name": "login_url",
+                    "value": self.signal_values["login_url"]
+                },
+                {
+                    "group_name": "VM",
+                    "name": "user_logged_in",
+                    "value": self.signal_values["user_logged_in"]
+                },
+                {
+                    "group_name": "Experiment",
+                    "name": "progress",
+                    "value": self.signal_values["progress"]
+                },
+                {
+                    "group_name": "Experiment",
+                    "name": "message",
+                    "value": self.signal_values["message"]
+                }
+            ]
+        }
+        self.sio.emit("signal_values", signal_values, "/hostpc") # (15)
+        # TODO: Interact with the VM to get the required results!! OR The VM sends us this data to an API? That is also a nice test.
+        # TODO: When user is logged out or is not logged in within 15 minutes, prepare to stop.
+        if self.stop_experiment:
+            self.signal_values["message"] = "Please stop working on the experiment, will stop in 10 minutes."
+            self.fsm_state = FSMStates.STOP_EXPERIMENT
 
     def state_stop_experiment(self):
-        pass
+        """Stop the experiment is getting the progress and all the information from the VM to be stored at the lectures files,
+           but also create some files for the student, so he/she can make a report. Some messages needs to be send to the server."""
+        self.debug_print("FSM STOP_EXPERIMENT")
+        time.sleep(60) # When the user is logged in, wait for 10 minutes before stopping.
+        self._set_status("processing_results", "Stopping experiment")
+        self.send_status()
+        time.sleep(60) # Processing results
+        self._set_status("resetting", "Resetting the experiment")
+        self.send_status()
+        self.fsm_state = FSMStates.PREPARE_VM
 
     def run(self):
         """The main loop of the thread."""
