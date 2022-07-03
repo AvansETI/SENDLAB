@@ -50,6 +50,7 @@ class RemoteLabsHostPC(threading.Thread):
         self.status_info = "HostPC initiated"
         self.build_experiment_data = None
         self.stop_experiment = False
+        self.timestamp = int(time.time())
 
         self.signal_values = {
             "login_code": "123456TEST",
@@ -134,6 +135,8 @@ class RemoteLabsHostPC(threading.Thread):
         print("free_message: " + str(data))
 
     def event_get_results(self, data):
+        """The server request results for an experiment_id, this method sends the experiment files to the server.
+            If the experiment_id exists."""
         print("get_results: " + str(data))
 
     def event_reset(self, data):
@@ -185,16 +188,19 @@ class RemoteLabsHostPC(threading.Thread):
     def clean_up_vm(self):
         """This methods checks if a VM is currently running. If so, it stops the VM and
            cleans it up."""
+        self.debug_print("clean_up_vm: Cleaning up current VM")
         time.sleep(30)
         pass
 
     def create_new_vm(self):
         """This methods create and run a new VM to be used for the experiment."""
+        self.debug_print("clean_new_vm: Creating new VM")
         time.sleep(60)
         pass
 
     def test_current_vm(self):
         """This methods test the running VM whether it can be used for the experiment."""
+        self.debug_print("test_current_vm: Testing current VM")
         time.sleep(30)
         return True
 
@@ -217,10 +223,14 @@ class RemoteLabsHostPC(threading.Thread):
         """Waits for build_experiment signal of the server. When it get the message
            'build_experiment' from the server, it will go to the next state 'BUILD_EXPERIMENT'"""
         self.debug_print("FSM READY_FOR_EXPERIMENT")
+        time.sleep(10) # SIMULATE RECEIVED BUILD_SIGNAL
+        self.fsm_state = FSMStates.BUILD_EXPERIMENT # SIMULATE RECEIVED BUILD_SIGNAL
 
     def state_build_experiment(self):
         """Wait on the status 'building' message."""
         self.debug_print("FSM BUILD_EXPERIMENT")
+        time.sleep(10) # SIMULATE RECEIVED BUILD_SIGNAL
+        self.event_build_experiment({"experiment_id": 10}) # SIMULATE RECEIVED BUILD_SIGNAL
 
     def state_building(self):
         """Creates a value for the student to login into the system VM. It creates the data points for the experiment, like
@@ -275,6 +285,9 @@ class RemoteLabsHostPC(threading.Thread):
     def state_start_experiment(self):
         """Wait for the start_experiment message from the server."""
         self.debug_print("FSM START_EXPERIMENT")
+        self.timestamp = int(time.time()) # Set the timestamp
+        time.sleep(10) # SIMULATE RECEIVED BUILD_SIGNAL
+        self.event_start_experiment({"experiment_id": 10}) # SIMULATE RECEIVED BUILD_SIGNAL
 
     def state_run_experiment(self):
         """The experiment is running. Check the VM wheter someone has logged in and check the experiment progress. This data
@@ -317,6 +330,11 @@ class RemoteLabsHostPC(threading.Thread):
         if self.stop_experiment:
             self.signal_values["message"] = "Please stop working on the experiment, will stop in 10 minutes."
             self.fsm_state = FSMStates.STOP_EXPERIMENT
+
+        # Simulate the message from the server
+        timestamp = int(time.time())
+        if timestamp - self.timestamp > 60:
+            self.event_stop_experiment({"experiment_id": 10}) # SIMULATE RECEIVED BUILD_SIGNAL
 
     def state_stop_experiment(self):
         """Stop the experiment is getting the progress and all the information from the VM to be stored at the lectures files,

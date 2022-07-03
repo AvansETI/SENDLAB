@@ -10,6 +10,12 @@ import base64
 
 from remotelabs.remotelabs_hostpc import RemoteLabsHostPC
 
+# REMOVE AND ADD VALID SSL CERTICATE
+import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
+
 # https://editor.swagger.io/
 # https://gitlab.com/wolfpackit/projects/tu-e-electrical-engineering/remote-labs/remote-labs-mock-hostpc/-/blob/develop/src/main/resources/openapi/socketio.yaml
 
@@ -18,6 +24,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # Create the socket.io client
 sio = socketio.Client(logger=True, engineio_logger=True, ssl_verify=False)
+
 
 hostpc = RemoteLabsHostPC(sio)
 hostpc.debug = True
