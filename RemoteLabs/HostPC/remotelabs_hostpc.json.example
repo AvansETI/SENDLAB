@@ -1,0 +1,7 @@
+{ 
+    "socketio_server": "https://localhost",
+    "username": "test",
+    "password": "password",
+    "logger": true,
+    "engineio_logger": true
+}
