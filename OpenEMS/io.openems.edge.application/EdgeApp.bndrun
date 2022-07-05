@@ -155,7 +155,8 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
 	bnd.identity;id='io.openems.edge.tesla.powerwall.custom',\
 	bnd.identity;id='io.openems.edge.controller.api.mqtt',\
-	bnd.identity;id='io.openems.edge.controller.api.mqtt.custom'
+	bnd.identity;id='io.openems.edge.controller.api.mqtt.custom',\
+	bnd.identity;id='io.openems.edge.smartmeter'
 -runbundles: \
 	Java-WebSocket;version='[1.5.3,1.5.4)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
@@ -353,4 +354,5 @@
 	rrd4j;version='[3.8.1,3.8.2)',\
 	io.openems.edge.tesla.powerwall.custom;version=snapshot,\
 	io.openems.edge.controller.api.mqtt.custom;version=snapshot,\
-	io.openems.edge.controller.api.mqtt;version=snapshot
+	io.openems.edge.controller.api.mqtt;version=snapshot,\
+	io.openems.edge.smartmeter;version=snapshot

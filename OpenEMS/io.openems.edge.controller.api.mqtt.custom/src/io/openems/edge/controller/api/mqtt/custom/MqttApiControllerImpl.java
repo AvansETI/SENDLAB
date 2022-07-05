@@ -101,13 +101,19 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 						
 						this.mqttClient.setCallback(getCallback(config.type()));
 						
-						for(String topic : config.topic()) {
-							this.subscribe(topic, 1);
-						}
+//						for(String topic : config.topic()) {
+//							this.subscribe(topic, 0);
+//						}
+						
+//						this.subscribe("node/smartmeter-2019-ETI-EMON-V01-CD517F-1640D8/message", 0);
+//						this.subscribe("node/smartmeter-2019-ETI-EMON-V01-CD517F-1640D8/data", 0);
+						this.subscribe("node/smartmeter-2019-ETI-EMON-V01-DADDE2-16301C/message", 0);
+						this.subscribe("node/smartmeter-2019-ETI-EMON-V01-DADDE2-16301C/data", 0);
+						this.subscribe("node/smartmeter-2019-ETI-EMON-V01-DADDE2-16301C", 0);
 						
 						if(config.uri().contains(sendlabUri)) {
-							this.subscribe("node/" + config.clientId() + "/message", 0); 
-							this.subscribe("node/" + config.clientId() + "/data", 0);
+//							this.subscribe("node/" + config.clientId() + "/message", 0); 
+//							this.subscribe("node/" + config.clientId() + "/data", 0);
 							
 						}
 					}
@@ -117,15 +123,15 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		/**
 		 * Connects to the MQTT broker (only for config data).
 		 */
-		if(config.uri().contains(sendlabUri)) {
-			this.mqttConnectorForConfig.connect(config.uri(), config.clientId(), config.username(), config.password())
-			.thenAccept(client -> {
-				this.mqttClientForConfig = client;				
-				if(this.mqttClientForConfig.isConnected()) {
-					this.logInfo(this.log, "Connected to MQTT Broker CONFIG [" + config.uri() + "]");
-				}
-			});
-		}
+//		if(config.uri().contains(sendlabUri)) {
+//			this.mqttConnectorForConfig.connect(config.uri(), config.clientId(), config.username(), config.password())
+//			.thenAccept(client -> {
+//				this.mqttClientForConfig = client;				
+//				if(this.mqttClientForConfig.isConnected()) {
+//					this.logInfo(this.log, "Connected to MQTT Broker CONFIG [" + config.uri() + "]");
+//				}
+//			});
+//		}
 	}
 	
 	/**
@@ -174,19 +180,19 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 			}
 		}
 		
-		if(this.mqttConnectorForConfig != null) {
-			this.mqttConnectorForConfig.deactivate();
-		}
-		if(this.mqttClientForConfig != null) {
-			try {
-				this.mqttClientForConfig.disconnect();	
-				this.mqttClientForConfig.close();		
-			} catch (MqttException e) {
-				this.logWarn(this.log, "Unable to close connection to MQTT broker (CONFIG): " + e.getMessage());
-				e.printStackTrace();
-			}
-			
-		}
+//		if(this.mqttConnectorForConfig != null) {
+//			this.mqttConnectorForConfig.deactivate();
+//		}
+//		if(this.mqttClientForConfig != null) {
+//			try {
+//				this.mqttClientForConfig.disconnect();	
+//				this.mqttClientForConfig.close();		
+//			} catch (MqttException e) {
+//				this.logWarn(this.log, "Unable to close connection to MQTT broker (CONFIG): " + e.getMessage());
+//				e.printStackTrace();
+//			}
+//			
+//		}
 	}
 
 	//Does nothing
@@ -224,7 +230,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 					/**
 					 * Collects data from OpenEMS and sends to broker.
 					 */
-					this.sendChannelValuesWorker.collectData(this.config.clientId());
+					//this.sendChannelValuesWorker.collectData(this.config.clientId());
 				}
 				break;
 			
@@ -237,24 +243,24 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 				 * 			node/init - info of what will be sent.
 				 * 			node/data - actual data that will be sent to the broker.
 				 */
-				if(this.config.uri().contains(sendlabUri)){	
-					// Send new EdgeConfig
-					EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
-					
-					MqttMessage msg = new MqttMessage(config.toJson().toString().getBytes(StandardCharsets.UTF_8), 0, true, new MqttProperties());
-					
-					if(mqttClientForConfig != null) {
-						try {
-							this.mqttClientForConfig.publish(this.config.clientId() + "/" + MqttApiController.TOPIC_EDGE_CONFIG, msg);
-						} catch (MqttException e) {
-							this.logError(this.log, e.getMessage());
-						}
-					}
-			
-//					// Trigger sending of all channel values, because a Component might have
-//					// disappeared
-					this.sendChannelValuesWorker.sendValuesOfAllChannelsOnce();
-				}
+//				if(this.config.uri().contains(sendlabUri)){	
+//					// Send new EdgeConfig
+//					EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
+//					
+//					MqttMessage msg = new MqttMessage(config.toJson().toString().getBytes(StandardCharsets.UTF_8), 0, true, new MqttProperties());
+//					
+//					if(mqttClientForConfig != null) {
+//						try {
+//							this.mqttClientForConfig.publish(this.config.clientId() + "/" + MqttApiController.TOPIC_EDGE_CONFIG, msg);
+//						} catch (MqttException e) {
+//							this.logError(this.log, "test" + e.getMessage());
+//						}
+//					}
+//			
+////					// Trigger sending of all channel values, because a Component might have
+////					// disappeared
+//					this.sendChannelValuesWorker.sendValuesOfAllChannelsOnce();
+//				}
 				break;
 				
 				//Could be used to send data after writing
@@ -324,7 +330,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 			return false;
 		} catch (MqttException e) {
 			String error = e.getMessage();
-			this.logError(log, error);
+			//this.logError(log, error);
 			if(error.equals("Connection lost")) {
 				this.subscribe(topic, qos);
 			}

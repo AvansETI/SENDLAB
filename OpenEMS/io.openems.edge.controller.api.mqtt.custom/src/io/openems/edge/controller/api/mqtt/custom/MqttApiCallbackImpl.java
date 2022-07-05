@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * @author Nic
  *
  */
-public class MqttApiCallbackImpl implements MqttCallback {
+public class MqttApiCallbackImpl implements MqttApiCallback {
 
 	/**
 	 * Empty constructor
