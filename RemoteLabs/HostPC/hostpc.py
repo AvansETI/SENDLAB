@@ -28,7 +28,7 @@ sio = socketio.Client(logger=True, engineio_logger=True, ssl_verify=False)
 
 hostpc = RemoteLabsHostPC(sio)
 hostpc.debug = True
-hostpc.simulation = True
+hostpc.simulation = False
 hostpc.start()
 
 @sio.event
