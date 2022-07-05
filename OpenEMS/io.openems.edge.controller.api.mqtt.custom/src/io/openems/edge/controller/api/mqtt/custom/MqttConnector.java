@@ -49,9 +49,11 @@ public class MqttConnector {
 			try {
 				this.client.connect(this.options);
 				this.result.complete(this.client);
+				System.out.println(new Date() + ": connection complete"); // TODO
+				
 			} catch (Exception e) {
 				System.out.println(new Date() + ": " + e.getMessage()); // TODO
-				MqttConnector.this.waitAndRetry();
+//				MqttConnector.this.waitAndRetry();
 			}
 		}
 	}

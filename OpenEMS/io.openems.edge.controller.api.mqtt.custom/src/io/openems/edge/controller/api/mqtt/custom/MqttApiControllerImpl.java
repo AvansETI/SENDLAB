@@ -57,7 +57,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(MqttApiControllerImpl.class);
 	private final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
 	private final MqttConnector mqttConnector = new MqttConnector();
-	private final MqttConnector mqttConnectorForConfig = new MqttConnector();
+//	private final MqttConnector mqttConnectorForConfig = new MqttConnector();
 
 	protected Config config;
 	private final String sendlabUri = "tcp://sendlab.nl:11884";
@@ -77,7 +77,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	}
 
 	private IMqttClient mqttClient = null;
-	private IMqttClient mqttClientForConfig = null;
+//	private IMqttClient mqttClientForConfig = null;
 	protected Instant currentTime;
 	
 	@Activate
@@ -91,7 +91,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		/**
 		 * Connects to the MQTT broker. Sets info based on config data.
 		 */
-		this.mqttConnector.connect(config.uri(), config.clientId(), config.username(), config.password())
+		this.mqttConnector.connect(config.uri(), config.clientId(), config.username(), config.password(), getCallback(config.type()))
 			.thenAccept(client -> {
 				this.mqttClient = client;				
 				if(this.mqttClient.isConnected()) {
@@ -99,21 +99,13 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 				
 					if(config.subscriber()) {
 						
-						this.mqttClient.setCallback(getCallback(config.type()));
+						for(String topic : config.topic()) {
+							this.subscribe(topic, 1);
+						}
 						
-//						for(String topic : config.topic()) {
-//							this.subscribe(topic, 0);
-//						}
-						
-//						this.subscribe("node/smartmeter-2019-ETI-EMON-V01-CD517F-1640D8/message", 0);
-//						this.subscribe("node/smartmeter-2019-ETI-EMON-V01-CD517F-1640D8/data", 0);
-						this.subscribe("node/smartmeter-2019-ETI-EMON-V01-DADDE2-16301C/message", 0);
-						this.subscribe("node/smartmeter-2019-ETI-EMON-V01-DADDE2-16301C/data", 0);
-						this.subscribe("node/smartmeter-2019-ETI-EMON-V01-DADDE2-16301C", 0);
-						
-						if(config.uri().contains(sendlabUri)) {
-//							this.subscribe("node/" + config.clientId() + "/message", 0); 
-//							this.subscribe("node/" + config.clientId() + "/data", 0);
+						if(config.uri().contains(sendlabUri) && config.type() == NodeType.DEFAULT) {
+							this.subscribe("node/" + config.clientId() + "/message", 0); 
+							this.subscribe("node/" + config.clientId() + "/data", 0);
 							
 						}
 					}
@@ -143,7 +135,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	protected MqttApiCallbackImpl getCallback(NodeType type) {
 		switch (type){
 		case SMARTMETER:
-			return new MqttApiCallbackSmartMeterImpl();
+			return new MqttApiCallbackSmartMeterImpl(); 
 			
 		case SOLAREDGE:
 			//TODO implement Solaredge callback.
@@ -167,17 +159,24 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		super.deactivate();
 		this.sendChannelValuesWorker.deactivate();
 		
-		if(this.mqttConnector != null) {
-			this.mqttConnector.deactivate();
-		}
 		if (this.mqttClient != null) {
 			try {	
 				this.mqttClient.disconnect();	
-				this.mqttClient.close();	
 			} catch (MqttException e) {
-				this.logWarn(this.log, "Unable to close connection to MQTT broker: " + e.getMessage());
+				this.logWarn(this.log, "Unable to disconnect with the MQTT broker: " + e.getMessage());
 				e.printStackTrace();
 			}
+			
+			try {	
+				this.mqttClient.close();	
+			} catch (MqttException e) {
+				this.logWarn(this.log, "Unable to close the MQTT broker connection: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		
+		if(this.mqttConnector != null) {
+			this.mqttConnector.deactivate();
 		}
 		
 //		if(this.mqttConnectorForConfig != null) {
@@ -230,7 +229,9 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 					/**
 					 * Collects data from OpenEMS and sends to broker.
 					 */
-					//this.sendChannelValuesWorker.collectData(this.config.clientId());
+					this.sendChannelValuesWorker.collectData(this.config.clientId());
+					//TODO - doesnt work with alias for some reason. Problem on broker side.
+//					this.sendChannelValuesWorker.collectData(this.config.alias());
 				}
 				break;
 			
@@ -330,7 +331,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 			return false;
 		} catch (MqttException e) {
 			String error = e.getMessage();
-			//this.logError(log, error);
+			this.logError(log, error);
 			if(error.equals("Connection lost")) {
 				this.subscribe(topic, qos);
 			}

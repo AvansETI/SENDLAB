@@ -1,8 +1,5 @@
 package io.openems.edge.controller.api.mqtt.custom;
 
-import java.util.Collection;
-import java.util.List;
-
 import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttDisconnectResponse;
 import org.eclipse.paho.mqttv5.common.MqttException;
@@ -12,21 +9,15 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableTable;
-import com.google.gson.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
-import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.channel.ChannelId;
 
-public class MqttApiCallbackSmartMeterImpl extends MqttApiCallbackImpl implements MqttApiCallbackSmartMeter {
-	
-	private JsonObject meterData;
+public class MqttApiCallbackSmartMeterImpl extends MqttApiCallbackImpl {
 	
 	@Reference
 	protected ComponentManager componentManager;
@@ -67,7 +58,6 @@ public class MqttApiCallbackSmartMeterImpl extends MqttApiCallbackImpl implement
 		
 		//Parses Smartmeter data
 		JsonObject o = JsonUtils.parseToJsonObject(arg1.toString());
-		this.meterData = o;
 		String id = JsonUtils.getAsString(o,"id");
 		JsonElement ar = o.get("measurements").getAsJsonArray().get(0);
 			
@@ -86,6 +76,7 @@ public class MqttApiCallbackSmartMeterImpl extends MqttApiCallbackImpl implement
 		OpenemsComponent smartmeter;
 		try {
 			smartmeter = this.componentManager.getComponent("smartmeter0");
+			smartmeter.channel("Id").setNextValue(id);
 			smartmeter.channel("EnergyDeliveredTarrif1").setNextValue(energy_delivered_tarrif_1);
 			smartmeter.channel("EnergyDeliveredTarrif2").setNextValue(energy_delivered_tarrif_2);
 			smartmeter.channel("EnergyReceivedTarrif1").setNextValue(energy_received_tarrif_1);
@@ -100,24 +91,8 @@ public class MqttApiCallbackSmartMeterImpl extends MqttApiCallbackImpl implement
 			this.log.info(smartmeter.channels().toString());
 			
 		} catch (OpenemsNamedException e) {
-			// TODO Auto-generated catch block
 			this.log.info(e.getMessage());
-//			e.printStackTrace();
 		}
-		
-		
-//		this.log.info(id);
-//		this.log.info(energy_delivered_tarrif_1 + "");
-//		this.log.info(energy_delivered_tarrif_2 + "");
-//		this.log.info(energy_received_tarrif_1 + "");
-//		this.log.info(energy_received_tarrif_2 + "");
-//		this.log.info(tariff_indicator + "");
-//		this.log.info(actual_power_delivered + "");
-//		this.log.info(actual_power_received + "");
-//		this.log.info(gas_delivered + "");
-//		this.log.info(energy_delivered + "");
-//		this.log.info(energy_received + "");
-//		this.log.info(timestamp);
 		
 		//Smartmeter data example
 //		{"id": "smartmeter-2019-ETI-EMON-V01-DADDE2-16301C", 
@@ -140,11 +115,6 @@ public class MqttApiCallbackSmartMeterImpl extends MqttApiCallbackImpl implement
 	@Override
 	public void mqttErrorOccurred(MqttException arg0) {
 		super.mqttErrorOccurred(arg0);
-	}
-
-	@Override
-	public JsonObject getMeterData() {
-		return this.meterData;
 	}
 	
 }

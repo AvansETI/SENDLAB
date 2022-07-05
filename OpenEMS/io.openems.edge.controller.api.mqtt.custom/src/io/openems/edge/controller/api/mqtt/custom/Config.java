@@ -43,7 +43,7 @@ import io.openems.common.channel.PersistencePriority;
 	boolean subscriber() default true;
 	
 	//Added
-	@AttributeDefinition(name = "Topic", description = "The topic to which to subscribe to.")
+	@AttributeDefinition(name = "Topic", description = "The topic to which to subscribe to. (Has to be the same node type)")
 	String[] topic();
 
 	@AttributeDefinition(name = "Persistence Priority", description = "Send only Channels with a Persistence Priority greater-or-equals this.")

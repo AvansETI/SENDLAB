@@ -32,9 +32,6 @@ import io.openems.edge.common.event.EdgeEventConstants;
 		} //
 )
 public class SmartmeterImpl extends AbstractOpenemsComponent implements Smartmeter, OpenemsComponent, EventHandler {
-
-	@Reference
-	protected ComponentManager componentManager;
 	
 	private Config config = null;
 
@@ -64,56 +61,18 @@ public class SmartmeterImpl extends AbstractOpenemsComponent implements Smartmet
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			
-
-			final List<OpenemsComponent> enabledComponents = this.componentManager.getEnabledComponents();
-
-			final ImmutableTable<String, String, JsonElement> allValues = this.collectData(enabledComponents);
-			
-			OpenemsComponent q;
-			
-			for(OpenemsComponent c : enabledComponents) {
-				
-				if(c.id().contains("ApiMqtt")) {
-					q = c;
-					break;
-				}
-				
-			}
-			
-			
-			// TODO: fill channels
 			break;
 		}
 	}
 
 	@Override
 	public String debugLog() {
-		return "Hello World" + this.getTimestamp();
+		return "ID: " + this.getId() + ", Timestamp: " + this.getTimestamp();
 	}
 
 	@Override
 	public Config getConfig() {
 		return this.config;
-	}
-	
-	
-	private ImmutableTable<String, String, JsonElement> collectData(List<OpenemsComponent> enabledComponents) {
-		try {
-			return enabledComponents.parallelStream() //
-					.flatMap(component -> component.channels().parallelStream()) //
-					.filter(channel -> // Ignore WRITE_ONLY Channels
-					channel.channelDoc().getAccessMode() != AccessMode.WRITE_ONLY //
-							// Ignore Low-Priority Channels
-							&& channel.channelDoc().getPersistencePriority()
-									.isAtLeast(this.config.persistencePriority()))
-					.collect(ImmutableTable.toImmutableTable(c -> c.address().getComponentId(),
-							c -> c.address().getChannelId(), c -> c.value().asJson()));
-		} catch (Exception e) {
-			// ConcurrentModificationException can happen if Channels are dynamically added
-			// or removed
-			return ImmutableTable.of();
-		}
 	}
 	
 	
