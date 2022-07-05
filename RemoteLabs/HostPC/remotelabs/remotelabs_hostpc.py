@@ -11,7 +11,7 @@
 """
 
 from distutils.log import debug
-import time, threading, json, base64
+import time, threading, json, base64, requests
 from enum import Enum
 
 class FSMStates(Enum):
@@ -113,9 +113,18 @@ class RemoteLabsHostPC(threading.Thread):
             # INFO: Prepare for experimen, but everything is good to go
             self.fsm_state = FSMStates.BUILDING
 
-    def get_experiment_files(self, data):
+    def get_experiment_files(self, download_urls):
         """Retrieve the experiment files from the server using the data.
-           TODO"""
+           TODO: At this moment no files are required to run the experiment."""
+        # 1: Each experiment has its own directory, so create it is it does not exist
+        experiment_dir = "./"
+        for url in download_urls:
+            if url.find('/'):
+                filename = url.rsplit('/', 1)[1]
+                print("get_experiment_files: URL: " + url)
+                print("get_experiment_files: filename: " + filename)
+                response = requests.get(url, stream=True, allow_redirects=True)
+                open(experiment_dir + filename, "wb").write(response.content)
         pass
 
     def event_build_experiment(self, data):
@@ -125,7 +134,11 @@ class RemoteLabsHostPC(threading.Thread):
             self.experiment_id = data["experiment_id"]
             self._set_status("receiving_experiment_files", "Ready for experiment")
             self.send_status() # (3)
-            self.get_experiment_files(data) # (4)
+            if "download_urls" in data:
+                self.get_experiment_files(data["download_urls"]) # (4)
+            if "maxduration" in data:
+                experiment_max_duration = data["maxduration"]
+                print("event_build_experiment: MAX DURATION GIVEN: " + str(experiment_max_duration))
             self.fsm_state = FSMStates.BUILD_EXPERIMENT
 
     def event_actuator_update(self, data):
@@ -141,6 +154,11 @@ class RemoteLabsHostPC(threading.Thread):
         """The server request results for an experiment_id, this method sends the experiment files to the server.
             If the experiment_id exists."""
         print("get_results: " + str(data))
+        experiment_id = data["experiment_id"]
+        experiment_results = {
+            "experiment_id": experiment_id,
+            "download_urls": ["http://192.168.5.109/experiment_" + str(experiment_id) + ".zip"]
+        }
 
     def event_reset(self, data):
         print("reset: " + str(data))
