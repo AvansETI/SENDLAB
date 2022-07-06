@@ -19,6 +19,23 @@ De communicatie van de HTTPClient naar de laadpaal staat hieronder weergeven met
 
 ![sequence diagram](https://raw.githubusercontent.com/AvansETI/SENDLAB/OpenEms/feature/V2G/Laadpaal%20(Venema%20V2G)/ontwerp/sequence%20-%20laadpaal.png)
 
+## Setup
+
+Eerst moet de API aangezet worden op de RaspberryPI om requests te kunnen sturen. Daarom moet er eerst een SSH verbinding tot stand worden gebracht met de Raspberry PI
+vanuit het SENDLAB via CMD
+
+```
+  ssh dkroeske@192.168.0.183
+```
+
+Vervolgens moet het wachtwoord worden ingevoerd om binnen de shell te komen deze is: sendlab
+
+Als laatst moet de API aangezet worden en dit gaat met behulp van deze command:
+
+```
+  sudo python3 api.py
+```
+
 ## API
 
 #### Get JSON object with all the data from the charging station
