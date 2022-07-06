@@ -8,4 +8,4 @@ This diagram uses the Smartmeter component. It also shows the communication betw
 ![alt text](../io.openems.edge.controller.api.mqtt.custom/assets/Communication%20overview%20with%20smartmeter%20as%20example.JPG)
 
 
-https://github.com/AvansETI/SENDLAB/tree/OpeEms/feature/merge/OpenEMS/io.openems.edge.smartmeter[Source Code icon:github[]]
+[Source code](https://github.com/AvansETI/SENDLAB/tree/OpeEms/feature/merge/OpenEMS/io.openems.edge.smartmeter)

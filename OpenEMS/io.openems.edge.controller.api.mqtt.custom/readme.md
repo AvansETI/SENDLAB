@@ -50,7 +50,7 @@ This diagram uses the Smartmeter component. It also shows the communication betw
 
 
 Orignal source branch (Temp)
-https://github.com/AvansETI/SENDLAB/tree/OpeEms/feature/merge/OpenEMS/io.openems.edge.controller.api.mqtt.custom[Source Code icon:github[]]
+[Branch code](https://github.com/AvansETI/SENDLAB/tree/OpeEms/feature/merge/OpenEMS/io.openems.edge.controller.api.mqtt.custom)
 
 End destination
-https://github.com/AvansETI/SENDLAB/tree/Development/OpenEMS/io.openems.edge.controller.api.mqtt.custom[Source Code icon:github[]]
+[Target source code](https://github.com/AvansETI/SENDLAB/tree/Development/OpenEMS/io.openems.edge.controller.api.mqtt.custom)
