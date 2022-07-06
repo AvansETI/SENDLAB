@@ -1,3 +1,24 @@
-= io.openems.edge.chargingstation.v2g
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.chargingstation.v2g[Source Code icon:github[]]
+# OpenEMS Edge Component [Charging Station - V2G]
+
+Een beschrijving van de werking en toepassing van dit component.
+
+## Ontwerp
+
+Het componenent bestaat uit een OSGi Bundel die binnen OpenEMS is gerealiseerd. Het component maakt hierbij gebruik van het standaard generieke component van OpenEMS voor apparaten. Binnen het component haalt het data op met gebruik van een Eventhandler die per seconde data ophaalt. Dit gebeurd met behulp van een HTTPClient die het JSON object ophaalt met de data vanuit de API van de laadpaal.
+
+Voor het aanmaken van toevoegen van nieuwe data binnen het component moet er binnen de V2G.java interface nieuwe Channels worden aangemaakt. Hierbij moet er ook een getter en setter worden toegevoegd.
+
+```java
+NAME_OF_DATA(Doc.of(OpenemsType.DOUBLE).unit(Unit.{TYPE}).accessMode(AccessMode.READ_WRITE)
+				.persistencePriority(PersistencePriority.HIGH)),
+```
+
+Binnen V2GImpl.java kan dan vanuit het ontvangen JSON object de data worden gekoppeld aan de juiste channel met gebruik van de setter van de channel.
+
+```java
+this._set{ChannelName}(jo.get("ChannelName").getAsDouble());
+```
+
+Met gebruik van de Channels kan dan alle data worden gedeeld met de rest van de componenten of UI.
+
