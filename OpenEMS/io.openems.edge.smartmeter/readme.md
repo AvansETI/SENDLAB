@@ -1,4 +1,4 @@
-= Smartmeter
+# OpenEMS Edge Component [Smartmeter]
 
 Collects data from the MQTT topic and communicaties via websocket to the ui.
 UI displays the data in a widget.
