@@ -26,22 +26,22 @@ public class MqttApiCallbackImpl implements MqttCallback {
 	
 	@Override
 	public void authPacketArrived(int arg0, MqttProperties arg1) {
-		this.log.debug("authPacketArrived");
+		this.log.info("authPacketArrived");
 	}
 
 	@Override
 	public void connectComplete(boolean arg0, String arg1) {
-		this.log.debug("connectComplete");
+		this.log.info("connectComplete");
 	}
 
 	@Override
 	public void deliveryComplete(IMqttToken arg0) {
-		this.log.debug("deliveryComplete");
+		this.log.info("deliveryComplete");
 	}
 
 	@Override
 	public void disconnected(MqttDisconnectResponse arg0) {
-		this.log.debug("disconnected");
+		this.log.info("disconnected");
 	}
 
 	/**
@@ -49,12 +49,13 @@ public class MqttApiCallbackImpl implements MqttCallback {
 	 */
 	@Override
 	public void messageArrived(String arg0, MqttMessage arg1) throws Exception {
+		this.log.info("messageArrived");
 		this.log.info("TOPIC: " + arg0.toString() + " = " + arg1.toString());
 	}
 
 	@Override
 	public void mqttErrorOccurred(MqttException arg0) {
-		this.log.error("mqttErrorOccurred");
+		this.log.warn("mqttErrorOccurred");
 	}
 
 }

@@ -25,7 +25,7 @@ public interface Smartmeter extends OpenemsComponent, EventHandler {
     			.persistencePriority(PersistencePriority.HIGH)),
     	ENERGY_RECEIVED_TARRIF_2(Doc.of(OpenemsType.DOUBLE).unit(Unit.KILOWATT_HOURS).accessMode(AccessMode.READ_WRITE)
     			.persistencePriority(PersistencePriority.HIGH)),
-    	TARRIF_INDICATOR(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)
+    	TARIFF_INDICATOR(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)
     			.persistencePriority(PersistencePriority.HIGH)),
     	ACTUAL_POWER_DELIVERED(Doc.of(OpenemsType.DOUBLE).unit(Unit.KILOWATT).accessMode(AccessMode.READ_WRITE)
     			.persistencePriority(PersistencePriority.HIGH)),
@@ -92,12 +92,12 @@ public interface Smartmeter extends OpenemsComponent, EventHandler {
     }
     
 
-    public default IntegerWriteChannel getTarrifIndicator() {
-        return this.channel(ChannelId.TARRIF_INDICATOR);
+    public default IntegerWriteChannel getTariffIndicator() {
+        return this.channel(ChannelId.TARIFF_INDICATOR);
     }
 
-    public default void _setTarrifIndicator(int value) {
-        this.getTarrifIndicator().setNextValue(value);
+    public default void _setTariffIndicator(int value) {
+        this.getTariffIndicator().setNextValue(value);
     }
     
     public default DoubleWriteChannel getActualPowerDelivered() {

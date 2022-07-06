@@ -3,9 +3,12 @@ package io.openems.edge.controller.api.mqtt.custom;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Map.Entry;
 
 import org.eclipse.paho.mqttv5.client.IMqttClient;
 import org.eclipse.paho.mqttv5.common.MqttException;
@@ -29,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.EdgeConfig;
@@ -39,6 +43,11 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.timedata.api.Timedata;
 
+/**
+ * Implementation of the custom MQTT component. Based on the requirements of the SENDLab.
+ * @author Nic
+ *
+ */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Api.MQTT.custom", //
 		immediate = true, //
@@ -46,7 +55,6 @@ import io.openems.edge.timedata.api.Timedata;
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CONFIG_UPDATE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 		} //
 )
 public class MqttApiControllerImpl extends AbstractOpenemsComponent
@@ -57,11 +65,15 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(MqttApiControllerImpl.class);
 	private final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
 	private final MqttConnector mqttConnector = new MqttConnector();
-//	private final MqttConnector mqttConnectorForConfig = new MqttConnector();
-
+	private final MqttConnector mqttConnectorForTopic = new MqttConnector();
+	private final MqttConnector mqttConnectorForConfig = new MqttConnector();
+	
+	protected IMqttClient mqttClient = null;
+	private IMqttClient mqttClientForTopic = null;
+	private IMqttClient mqttClientForConfig = null;
 	protected Config config;
-	private final String sendlabUri = "tcp://sendlab.nl:11884";
-
+	protected Instant currentTime;
+	
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
@@ -75,10 +87,6 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 				MqttApiController.ChannelId.values() //
 		);
 	}
-
-	private IMqttClient mqttClient = null;
-//	private IMqttClient mqttClientForConfig = null;
-	protected Instant currentTime;
 	
 	@Activate
 	void activate(ComponentContext context, Config config) throws Exception {
@@ -88,42 +96,54 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 
 		this.currentTime = Instant.now(this.componentManager.getClock());
 		
+		String clientId = config.clientId();
+		
 		/**
-		 * Connects to the MQTT broker. Sets info based on config data.
+		 * Connects to the MQTT broker. Publishes OpenEMS data.
 		 */
-		this.mqttConnector.connect(config.uri(), config.clientId(), config.username(), config.password(), getCallback(config.type()))
+		this.mqttConnector.connect(config.uri(), clientId+"_Publish", config.username(), config.password())
 			.thenAccept(client -> {
 				this.mqttClient = client;				
-				if(this.mqttClient.isConnected()) {
+				if(client.isConnected()) {
 					this.logInfo(this.log, "Connected to MQTT Broker [" + config.uri() + "]");
-				
-					if(config.subscriber()) {
-						
-						for(String topic : config.topic()) {
-							this.subscribe(topic, 1);
-						}
-						
-						if(config.uri().contains(sendlabUri) && config.type() == NodeType.DEFAULT) {
-							this.subscribe("node/" + config.clientId() + "/message", 0); 
-							this.subscribe("node/" + config.clientId() + "/data", 0);
-							
-						}
-					}
 				}
 			});		
 		
 		/**
+		 * Connects to the MQTT broker. Reads Broker data.
+		 * Needed for reading data, publish method is blocking thus cannot read data asynchronously.
+		 */
+		if(config.subscriber()) {
+			this.mqttConnectorForTopic.connect(config.uri(), clientId+"_Subscribe", config.username(), config.password(), getCallback(config.type()))
+				.thenAccept(client -> {
+					this.mqttClientForTopic = client;				
+					if(client.isConnected()) {
+						this.logInfo(this.log, "Connected to MQTT Broker for Topics [" + config.uri() + "]");
+			
+						for(String topic : config.topic()) {
+							this.subscribe(topic, 0);
+						}
+					
+						if(config.type() == NodeType.OPENEMS) {
+							this.subscribe("node/" + config.clientId() + "/message", 0); 
+							this.subscribe("node/" + config.clientId() + "/data", 0);
+						}
+					}
+				});	
+		}
+		
+		/**
 		 * Connects to the MQTT broker (only for config data).
 		 */
-//		if(config.uri().contains(sendlabUri)) {
-//			this.mqttConnectorForConfig.connect(config.uri(), config.clientId(), config.username(), config.password())
-//			.thenAccept(client -> {
-//				this.mqttClientForConfig = client;				
-//				if(this.mqttClientForConfig.isConnected()) {
-//					this.logInfo(this.log, "Connected to MQTT Broker CONFIG [" + config.uri() + "]");
-//				}
-//			});
-//		}
+		this.mqttConnectorForConfig.connect(config.uri(), clientId+"_Config", config.username(), config.password())
+			.thenAccept(client -> {
+				this.mqttClientForConfig = client;				
+				if(this.mqttClientForConfig.isConnected()) {
+					this.logInfo(this.log, "Connected to MQTT Broker for OpenEMS config [" + config.uri() + "]");
+					//TODO - not yet implemented
+//					this.publishConfigDataInit();
+				}
+			});
 	}
 	
 	/**
@@ -135,15 +155,16 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	protected MqttApiCallbackImpl getCallback(NodeType type) {
 		switch (type){
 		case SMARTMETER:
-			return new MqttApiCallbackSmartMeterImpl(); 
+			return new MqttApiCallbackSmartMeterImpl(componentManager); 
 			
 		case SOLAREDGE:
 			//TODO implement Solaredge callback.
 			
 		case POWERWALL:
 			//TODO implement Powerwall callback.
-		
-		case DEFAULT :
+			
+		case OPENEMS:
+		case DEFAULT:
 			return new MqttApiCallbackImpl();
 				
 		default:
@@ -159,39 +180,39 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		super.deactivate();
 		this.sendChannelValuesWorker.deactivate();
 		
-		if (this.mqttClient != null) {
-			try {	
-				this.mqttClient.disconnect();	
-			} catch (MqttException e) {
-				this.logWarn(this.log, "Unable to disconnect with the MQTT broker: " + e.getMessage());
-				e.printStackTrace();
+		mqttDisconnect(mqttClient, mqttConnector);
+		mqttDisconnect(mqttClientForTopic,mqttConnectorForTopic);
+		mqttDisconnect(mqttClientForConfig, mqttConnectorForConfig);
+	}
+	
+	/**
+	 * Method used to disconnect the MQTT client and connector.
+	 * @param client 	 the MQTT client
+	 * @param connector	 the MQTT connector
+	 */
+	private void mqttDisconnect(IMqttClient client, MqttConnector connector) {
+		
+		if(client != null) {
+			if(client.isConnected()) {
+				try {	
+					client.disconnect();	
+				} catch (MqttException e) {
+					this.logWarn(this.log, "Unable to disconnect with the MQTT broker: " + e.getMessage());
+					e.printStackTrace();
+				}
 			}
 			
 			try {	
-				this.mqttClient.close();	
+				client.close();	
 			} catch (MqttException e) {
 				this.logWarn(this.log, "Unable to close the MQTT broker connection: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
 		
-		if(this.mqttConnector != null) {
-			this.mqttConnector.deactivate();
+		if(connector != null) {
+			connector.deactivate();
 		}
-		
-//		if(this.mqttConnectorForConfig != null) {
-//			this.mqttConnectorForConfig.deactivate();
-//		}
-//		if(this.mqttClientForConfig != null) {
-//			try {
-//				this.mqttClientForConfig.disconnect();	
-//				this.mqttClientForConfig.close();		
-//			} catch (MqttException e) {
-//				this.logWarn(this.log, "Unable to close connection to MQTT broker (CONFIG): " + e.getMessage());
-//				e.printStackTrace();
-//			}
-//			
-//		}
 	}
 
 	//Does nothing
@@ -225,14 +246,14 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		
 		switch (event.getTopic()) {
 			case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE: 
-				if(this.config.uri().contains(sendlabUri)){
 					/**
 					 * Collects data from OpenEMS and sends to broker.
 					 */
-					this.sendChannelValuesWorker.collectData(this.config.clientId());
-					//TODO - doesnt work with alias for some reason. Problem on broker side.
-//					this.sendChannelValuesWorker.collectData(this.config.alias());
-				}
+					if(this.config.alias() != null && !this.config.alias().isBlank()) {
+						this.sendChannelValuesWorker.collectData(this.config.alias());
+					}else {
+						this.sendChannelValuesWorker.collectData(this.config.clientId());
+					}
 				break;
 			
 			case EdgeEventConstants.TOPIC_CONFIG_UPDATE: 
@@ -244,28 +265,25 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 				 * 			node/init - info of what will be sent.
 				 * 			node/data - actual data that will be sent to the broker.
 				 */
-//				if(this.config.uri().contains(sendlabUri)){	
-//					// Send new EdgeConfig
+					// Send new EdgeConfig
 //					EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
-//					
+					
 //					MqttMessage msg = new MqttMessage(config.toJson().toString().getBytes(StandardCharsets.UTF_8), 0, true, new MqttProperties());
 //					
 //					if(mqttClientForConfig != null) {
 //						try {
+//							this.publishConfigData(); //to replace method below.
 //							this.mqttClientForConfig.publish(this.config.clientId() + "/" + MqttApiController.TOPIC_EDGE_CONFIG, msg);
 //						} catch (MqttException e) {
 //							this.logError(this.log, "test" + e.getMessage());
 //						}
 //					}
-//			
-////					// Trigger sending of all channel values, because a Component might have
-////					// disappeared
-//					this.sendChannelValuesWorker.sendValuesOfAllChannelsOnce();
-//				}
-				break;
+			
+					// Trigger sending of all channel values, because a Component might have
+					// disappeared
+					this.sendChannelValuesWorker.sendValuesOfAllChannelsOnce();
 				
-				//Could be used to send data after writing
-			case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
+				break;
 				
 		}
 	}
@@ -273,19 +291,19 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	/**
 	 * Publish a message to a topic.
 	 * 
-	 * @param subTopic the MQTT topic. 
-	 * @param message  the message
+	 * @param client	the MQTT client.
+	 * @param topic 	the MQTT topic. 
+	 * @param message  	the message
 	 * @return true if message was successfully published; false otherwise
 	 */
-	protected boolean publish(String subTopic, MqttMessage message) {
-		IMqttClient mqttClient = this.mqttClient;
+	protected boolean publish(IMqttClient client, String subTopic, MqttMessage message) {
 		if (mqttClient == null) {
 			return false;
 		}
 		try {
 			if(mqttClient.isConnected()) {
 				mqttClient.publish(subTopic, message);
-				this.logInfo(log, "Publish [" + message + "]");
+//				this.logInfo(log, "Publish [" + message + "]");
 				return true;
 			}
 			return false;
@@ -298,16 +316,17 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	/**
 	 * Publish a message to a topic.
 	 * 
-	 * @param subTopic   the MQTT topic. 
+	 * @param client	 the MQTT client.
+	 * @param topic   	 the MQTT topic. 
 	 * @param message    the message; internally translated to a UTF-8 byte array
 	 * @param qos        the MQTT QOS
 	 * @param retained   the MQTT retained parameter
 	 * @param properties the {@link MqttProperties}
 	 * @return true if message was successfully published; false otherwise
 	 */
-	protected boolean publish(String subTopic, String message, int qos, boolean retained, MqttProperties properties) {
+	protected boolean publish(IMqttClient client, String topic, String message, int qos, boolean retained, MqttProperties properties) {
 		MqttMessage msg = new MqttMessage(message.getBytes(StandardCharsets.UTF_8), qos, retained, properties);
-		return this.publish(subTopic, msg);
+		return this.publish(client, topic, msg);
 	}
 	
 	/**
@@ -318,7 +337,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	 * @return true if topic was successfully subscribed to; false otherwise.
 	 */
 	protected boolean subscribe(String topic, int qos) {
-		IMqttClient mqttClient = this.mqttClient;
+		IMqttClient mqttClient = this.mqttClientForTopic;
 		if (mqttClient == null) {
 			return false;
 		}
@@ -330,13 +349,89 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 			}
 			return false;
 		} catch (MqttException e) {
-			String error = e.getMessage();
-			this.logError(log, error);
-			if(error.equals("Connection lost")) {
-				this.subscribe(topic, qos);
-			}
+			this.logError(log, e.getMessage());
+			e.printStackTrace();
 			return false;
 		}
 	};
+	
+	/**
+	 * TODO - Implement node/init for config data.
+	 * 		(node/"clientId"/message)
+	 */
+//	private void publishConfigDataInit() {
+//		Map<String, Object> jsonData = new LinkedHashMap<>();
+//		jsonData.put("mode", 0);
+//		jsonData.put("type", "simulation"); //Don't know the other types that the server accepts.
+//		jsonData.put("id", id);
+//		jsonData.put("name", id);
+//		
+//		
+//		ArrayList<HashMap<String, String>> measurementsInit = new ArrayList<HashMap<String,String>>();
+//		LinkedHashMap<String,String> mapInit = new LinkedHashMap<String,String>();
+//	
+//		// Send changed values
+//		for (Entry<String, Map<String, JsonElement>> row : this.allValues.rowMap().entrySet()) {
+//			for (Entry<String, JsonElement> column : row.getValue().entrySet()) {
+//				if (!Objects.equals(column.getValue(), lastAllValues.get(row.getKey(), column.getKey()))) {
+//					String subtopic = row.getKey() + "/" + column.getKey();
+//					
+//					
+//						mapData.put(subtopic,column.getValue().toString());
+//				
+//		
+//				}
+//			}
+//		}
+//		
+//		measurementsData.add(mapData);
+//		jsonData.put("measurements", measurementsData);
+//		jsonData.put("actuators", new HashMap<>());
+//		Gson g = new Gson();
+//		String parsedData = g.toJson(jsonData);
+//		this.publish("node/data", parsedData);
+//	}
+	
+	/**
+	 * TODO - Implement node/data for config data.
+	 * 		  (node/"clientId"/data)
+	 */
+//	private void publishConfigData() {
+//		Map<String, Object> jsonData = new LinkedHashMap<>();
+//
+//		Timestamp instant= Timestamp.from(Instant.now());
+//		String time = instant.toString();
+//		
+//		String[] s = time.split(" ");
+//		String b = s[0]; 
+//		String c = s[1]; 
+//		time = b + "T" + c;
+//			
+//		jsonData.put("id",id);
+//		jsonData.put("timestamp", time);
+//		
+//		ArrayList<HashMap<String, Object>> measurementsData = new ArrayList<HashMap<String,Object>>();
+//		LinkedHashMap<String,Object> mapData = new LinkedHashMap<String,Object>();
+//		
+//		// Send changed values
+//		for (Entry<String, Map<String, JsonElement>> row : this.allValues.rowMap().entrySet()) {
+//			for (Entry<String, JsonElement> column : row.getValue().entrySet()) {
+//				if (!Objects.equals(column.getValue(), lastAllValues.get(row.getKey(), column.getKey()))) {
+//					String subtopic = row.getKey() + "/" + column.getKey();
+//					
+//					mapData.put(subtopic,column.getValue().toString());
+//		
+//				}
+//			}
+//		}
+//		
+//		/**
+//		 * Publishes data to the MQTT broker.
+//		 */
+//		jsonData.put("measurements", measurementsInit);
+//		Gson g = new Gson();
+//		String parsedData = g.toJson(jsonData);
+//		this.publish("node/init", parsedData);
+//	}
 	
 }

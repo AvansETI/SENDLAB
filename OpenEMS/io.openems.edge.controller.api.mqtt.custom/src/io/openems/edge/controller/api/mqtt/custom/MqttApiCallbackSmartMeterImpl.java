@@ -17,15 +17,19 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 
+/**
+ * Smartmeter callback for the Smartmeter node on the SENDLab broker.
+ * @author Nic
+ *
+ */
 public class MqttApiCallbackSmartMeterImpl extends MqttApiCallbackImpl {
 	
-	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 	
-	public MqttApiCallbackSmartMeterImpl() {
+	public MqttApiCallbackSmartMeterImpl(ComponentManager componentManager) {
+		this.componentManager = componentManager;
 	}
 
-	
 	private final Logger log = LoggerFactory.getLogger(MqttApiCallbackSmartMeterImpl.class);
 	 
 	@Override
@@ -53,9 +57,8 @@ public class MqttApiCallbackSmartMeterImpl extends MqttApiCallbackImpl {
 	 */
 	@Override
 	public void messageArrived(String arg0, MqttMessage arg1) throws Exception {
-		this.log.info("messageArrived");
 		super.messageArrived(arg0, arg1);
-		
+	
 		//Parses Smartmeter data
 		JsonObject o = JsonUtils.parseToJsonObject(arg1.toString());
 		String id = JsonUtils.getAsString(o,"id");
@@ -88,27 +91,9 @@ public class MqttApiCallbackSmartMeterImpl extends MqttApiCallbackImpl {
 			smartmeter.channel("EnergyDelivered").setNextValue(energy_delivered);
 			smartmeter.channel("EnergyReceived").setNextValue(energy_received);
 			smartmeter.channel("Timestamp").setNextValue(timestamp);
-			this.log.info(smartmeter.channels().toString());
-			
 		} catch (OpenemsNamedException e) {
 			this.log.info(e.getMessage());
 		}
-		
-		//Smartmeter data example
-//		{"id": "smartmeter-2019-ETI-EMON-V01-DADDE2-16301C", 
-//			"measurements": [{
-//				"energy_delivered_tarrif_1": 4143.831, 
-//				"energy_delivered_tarrif_2": 3853.056, 
-//				"energy_received_tarrif_1": 6.4, 
-//				"energy_received_tarrif_2": 3.293, 
-//				"tariff_indicator": 2, 
-//				"actual_power_delivered": 0.262, 
-//				"actual_power_received": 0.0, 
-//				"gas_delivered": 452.571, 
-//				"energy_delivered": 7996.887000000001, 
-//				"energy_received": 9.693000000000001, 
-//				"timestamp": "2022-05-25T11:14:27.641950+00:00"}]
-//		}
 		
 	}
 

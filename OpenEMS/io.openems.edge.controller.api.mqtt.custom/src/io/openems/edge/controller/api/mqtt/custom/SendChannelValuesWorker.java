@@ -160,7 +160,7 @@ public class SendChannelValuesWorker {
 
 	private static class SendTask implements Runnable {
 		
-		private static final int WaitTimeInSeconds = 15;
+		private static final int WaitTimeInSeconds = 10;
 
 		private final SendChannelValuesWorker parent;
 		private final Instant timestamp;
@@ -201,8 +201,8 @@ public class SendChannelValuesWorker {
 			 */	
 			Map<String, Object> jsonData = new LinkedHashMap<>();
 			if(this.parent.isInit) {
-				jsonData.put("type", "simulation"); //Don't know the other types that the server accepts.
 				jsonData.put("mode", 0);
+				jsonData.put("type", "simulation"); //Don't know the other types that the server accepts.
 				jsonData.put("id", id);
 				jsonData.put("name", id);
 			}else {
@@ -257,6 +257,8 @@ public class SendChannelValuesWorker {
 			if(this.parent.isInit) {				
 				jsonData.put("measurements", measurementsInit);
 				
+				jsonData.put("actuators", new HashMap<>());
+				
 				parsedData = g.toJson(jsonData);
 				
 				int timeDifference = Timestamp.from(timestamp).getSeconds() - Timestamp.from(this.parent.parent.currentTime).getSeconds();
@@ -283,7 +285,7 @@ public class SendChannelValuesWorker {
 
 			// Successful?
 			if (allSendSuccessful) {
-				this.printLog("Sucessfully sent MQTT data to broker");
+//				this.printLog("Sucessfully sent MQTT data to broker");
 			
 				// update information for next runs
 				this.parent.lastAllValues = this.allValues;
@@ -302,7 +304,7 @@ public class SendChannelValuesWorker {
 		 * @return true if sent successfully; false otherwise
 		 */
 		private boolean publish(String topic, String value) {
-			return this.parent.parent.publish(topic, value, 0, true, new MqttProperties());	
+			return this.parent.parent.publish(this.parent.parent.mqttClient, topic, value, 0, true, new MqttProperties());	
 		}
 		
 		private void printLog(String value) {

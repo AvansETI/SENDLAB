@@ -49,11 +49,12 @@ public class MqttConnector {
 			try {
 				this.client.connect(this.options);
 				this.result.complete(this.client);
-				System.out.println(new Date() + ": connection complete"); // TODO
+				System.out.println(new Date() + ": Connection to broker complete."); // TODO
 				
 			} catch (Exception e) {
-				System.out.println(new Date() + ": " + e.getMessage()); // TODO
-//				MqttConnector.this.waitAndRetry();
+				System.out.println(new Date() + ": Failed to connect to broker."); // TODO
+				System.out.println(e.getMessage()); // TODO
+				MqttConnector.this.waitAndRetry();
 			}
 		}
 	}
