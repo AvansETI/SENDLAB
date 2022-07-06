@@ -77,22 +77,22 @@ This diagram uses the Smartmeter component. It also shows the communication betw
 Image of the Ui component
 ![alt text](./assets/Ui%20component.JPG)
 
-Values for Sendlab broker
-Username: node
-Password: smartmeternode
-uri: sendlab.nl:11884
-
+Values for Sendlab broker \
+Username: node \
+Password: smartmeternode \
+uri: sendlab.nl:11884 \
+ \
 Default values
-Alias: SENDLab_OpenEMS
-Is enabled?: true
-Client-ID: SENDLab_OpenEMS
-Username: node
-Password: smartmeternode
-uri: sendlab.nl:11884
-Node Type: Default
-Topic: ""
-Persistence Priority: Very Low
-Debug Mode: false
+Alias: SENDLab_OpenEMS \
+Is enabled?: true \
+Client-ID: SENDLab_OpenEMS \
+Username: node \
+Password: smartmeternode \
+uri: sendlab.nl:11884 \
+Node Type: Default \
+Topic: "" \
+Persistence Priority: Very Low \
+Debug Mode: false \
 
 Orignal source branch (Temp)
 [Branch code](https://github.com/AvansETI/SENDLAB/tree/OpeEms/feature/merge/OpenEMS/io.openems.edge.controller.api.mqtt.custom)
