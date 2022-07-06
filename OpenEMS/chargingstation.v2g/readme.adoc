@@ -1,3 +1,0 @@
-= chargingstation.v2g
-
-https://github.com/OpenEMS/openems/tree/develop/chargingstation.v2g[Source Code icon:github[]]

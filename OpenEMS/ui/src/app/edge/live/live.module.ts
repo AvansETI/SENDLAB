@@ -9,6 +9,7 @@ import { ConsumptionModalComponent } from './common/consumption/modal/modal.comp
 import { GridComponent } from './common/grid/grid.component';
 import { GridModalComponent } from './common/grid/modal/modal.component';
 import { Common_Selfconsumption } from './common/selfconsumption/Common_Selfconsumption';
+import { SmartmeterComponent } from './common/smartmeter/smartmeter.component';
 import { StorageModalComponent } from './common/storage/modal/modal.component';
 import { StorageComponent } from './common/storage/storage.component';
 import { Controller_ChannelthresholdComponent } from './Controller/Channelthreshold/Channelthreshold';
@@ -117,6 +118,7 @@ import { ProductionComponent } from './production/production.component';
     Controller_Symmetric_TimeSlot_PeakShavingComponent,
     Controller_Symmetric_TimeSlot_PeakShavingModalComponent,
     ChargingStationComponent,
+    SmartmeterComponent,
     DelayedSellToGridComponent,
     DelayedSellToGridModalComponent,
     Evcs_Api_Cluster,

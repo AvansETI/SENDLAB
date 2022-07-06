@@ -10,6 +10,7 @@ export enum WidgetClass {
   'Production',
   'Consumption',
   'Chargingstation',
+  'Smartmeter',
 }
 
 export enum WidgetNature {
@@ -75,6 +76,8 @@ export class Widgets {
             return config.hasStorage();
           case 'Production':
           case 'Chargingstation':
+            return true;
+          case 'Smartmeter':
             return true;
           case 'Common_Selfconsumption':
             return config.hasProducer();

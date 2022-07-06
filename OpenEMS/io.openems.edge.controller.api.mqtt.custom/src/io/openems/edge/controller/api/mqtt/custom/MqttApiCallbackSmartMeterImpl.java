@@ -19,10 +19,10 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public class MqttApiCallbackSmartMeterImpl extends MqttApiCallbackImpl {
 	
-	@Reference
-	protected ComponentManager componentManager;
+	private ComponentManager componentManager;
 	
-	public MqttApiCallbackSmartMeterImpl() {
+	public MqttApiCallbackSmartMeterImpl(ComponentManager componentManager) {
+		this.componentManager = componentManager;
 	}
 
 	
@@ -53,9 +53,9 @@ public class MqttApiCallbackSmartMeterImpl extends MqttApiCallbackImpl {
 	 */
 	@Override
 	public void messageArrived(String arg0, MqttMessage arg1) throws Exception {
-		this.log.info("messageArrived");
 		super.messageArrived(arg0, arg1);
-		
+	
+		this.log.info("before");
 		//Parses Smartmeter data
 		JsonObject o = JsonUtils.parseToJsonObject(arg1.toString());
 		String id = JsonUtils.getAsString(o,"id");

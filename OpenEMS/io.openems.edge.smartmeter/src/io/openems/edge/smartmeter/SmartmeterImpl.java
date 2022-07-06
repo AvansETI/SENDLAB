@@ -67,7 +67,7 @@ public class SmartmeterImpl extends AbstractOpenemsComponent implements Smartmet
 
 	@Override
 	public String debugLog() {
-		return "ID: " + this.getId() + ", Timestamp: " + this.getTimestamp();
+		return this.channels().toString();
 	}
 
 	@Override
