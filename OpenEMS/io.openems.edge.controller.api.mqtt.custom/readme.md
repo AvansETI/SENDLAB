@@ -92,7 +92,7 @@ uri: sendlab.nl:11884 \
 Node Type: Default \
 Topic: "" \
 Persistence Priority: Very Low \
-Debug Mode: false \
+Debug Mode: false
 
 Orignal source branch (Temp)
 [Branch code](https://github.com/AvansETI/SENDLAB/tree/OpeEms/feature/merge/OpenEMS/io.openems.edge.controller.api.mqtt.custom)
