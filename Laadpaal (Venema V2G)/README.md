@@ -9,6 +9,16 @@ De API is gerealiseerd in Python met behulp van Flask voor de API en PyModbus vo
 
 Deze API stuurt met behulp van een simpele HTTP GET request een JSON object terug met verschillende variabelen aan data. De data wordt na de call opgevraagd vanuit de laadpaal doormiddel van de MODBUS registers.
 
+## Ontwerp
+
+In dit ontwerp staan alle onderdelen weergeven en de communicatie ertussen:
+
+![architectuur schema](https://raw.githubusercontent.com/AvansETI/SENDLAB/OpenEms/feature/V2G/Laadpaal%20(Venema%20V2G)/ontwerp/a.png)
+
+De communicatie van de HTTPClient naar de laadpaal staat hieronder weergeven met een sequence diagram:
+
+![sequence diagram](https://raw.githubusercontent.com/AvansETI/SENDLAB/OpenEms/feature/V2G/Laadpaal%20(Venema%20V2G)/ontwerp/sequence%20-%20laadpaal.png)
+
 ## API
 
 #### Get JSON object with all the data from the charging station
