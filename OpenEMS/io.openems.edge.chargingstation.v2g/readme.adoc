@@ -7,6 +7,14 @@ Een beschrijving van de werking en toepassing van dit component.
 
 Het componenent bestaat uit een OSGi Bundel die binnen OpenEMS is gerealiseerd. Het component maakt hierbij gebruik van het standaard generieke component van OpenEMS voor apparaten. Binnen het component haalt het data op met gebruik van een Eventhandler die per seconde data ophaalt. Dit gebeurd met behulp van een HTTPClient die het JSON object ophaalt met de data vanuit de API van de laadpaal.
 
+## Ontwerp
+
+De architectuur van het component ziet er zo uit:
+
+![design](https://raw.githubusercontent.com/AvansETI/SENDLAB/OpenEms/feature/V2G/Laadpaal%20(Venema%20V2G)/ontwerp/component-design.png)
+
+Het V2G component maakt gebruik van het abstracte standaard openems component. Hieraan worden de verschillende Channels toegevoegd die benodigd zijn voor de data die de HTTPClient binnen haalt. De HTTPClient krijgt een JSON Object met alle data binnen en de data worden binnen de Eventhandler individueel gekoppeld aan de Channels
+
 ## Toepassing en werking
 
 Voor van toevoegen van nieuwe dataskeleten binnen het component moet er binnen de V2G.java interface nieuwe Channels worden aangemaakt. Hierbij moet er ook een getter en setter worden toegevoegd.
