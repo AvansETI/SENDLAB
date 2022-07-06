@@ -1,18 +1,47 @@
-= Api MQTT
+= Api MQTT Custom
 
 Publishes OpenEMS Edge data to a MQTT broker.
 
-* `edge/{OpenEMS-Edge-ID}/channel/{Component-ID}/{Channel-ID}`
+Made based on SENDLab Broker requirements.
+
+* `node/init`
+** Topic used to initialize the node on the broker.
+** MQTT message format:
+*** type (String)
+*** mode (String)
+*** id (String)
+*** name (String)
+*** measurements (Array of arrays)
+**** measurment (Array)
+***** name (String)
+***** description (String)
+***** unit (String)
+*** actuators (Array of arrays)
+**** actuator (Array)
+***** name (String)
+***** description (String)
+***** unit (String)
+
+* `node/[nodeid]/message`
+** nodeid = the id of the node, can be changed within the backend or ui configuration of the component.
+** Result of the message sent to the broker on topic node/init.
+*** example {"status": 1, "time": "2022-06-20T15:57:52.5565074+00:00", "message": "Welcome back to the network!"}
+
+* `node/data`
+** Topic used to send data to the node on the broker.
+** MQTT message format:
+*** id (String)
+*** timestamp (String) [year-month-dayTHrs:min:sec.milsec] example: 2022-06-20T15:57:52.5565074 
+*** measurements (Array of arrays) //Data that you would like on the broker. example [{"value":"data"},{"value":"moredata"}]
+
+* `node/[nodeid]/data`
+** nodeid = the id of the node, can be changed within the backend or ui configuration of the component.
+** Result of the message sent to the broker on topic node/data.
 ** Data of Channels is published on change and at least every 5 minutes to these topics.
-** Example: `edge/edge0/channel/_sum/GridActivePower`
+*** example ![node data example](https://github.com/AvansETI/SENDLAB/tree/OpeEms/feature/merge/OpenEMS/io.openems.edge.controller.api.mqtt.custom/assets/mqtt.jpg)
 
+Orignal source branch (Temp)
+https://github.com/AvansETI/SENDLAB/tree/OpeEms/feature/merge/OpenEMS/io.openems.edge.controller.api.mqtt.custom[Source Code icon:github[]]
 
-* `edge/{OpenEMS-Edge-ID}/channel/lastUpdate`
-** Timestamp of the latest data update on any of the Channel topics above.
-** Example: `edge/edge0/channel/lastUpdate`
-
-* `edge/{OpenEMS-Edge-ID}/edgeConfig`
-** Configuration of the OpenEMS Edge instance is published to this topic as a JsonObject.
-** Example: `edge/edge0/edgeConfig`
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.mqtt[Source Code icon:github[]]
+End destination
+https://github.com/AvansETI/SENDLAB/tree/Development/OpenEMS/io.openems.edge.controller.api.mqtt.custom
