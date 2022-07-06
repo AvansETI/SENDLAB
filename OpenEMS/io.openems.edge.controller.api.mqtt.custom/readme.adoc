@@ -1,6 +1,7 @@
 = Api MQTT Custom
 
 Publishes OpenEMS Edge data to a MQTT broker.
+Recieves data from a MQTT broker's topics.
 
 Made based on SENDLab Broker requirements.
 
@@ -38,10 +39,16 @@ Made based on SENDLab Broker requirements.
 ** nodeid = the id of the node, can be changed within the backend or ui configuration of the component.
 ** Result of the message sent to the broker on topic node/data.
 ** Data of Channels is published on change and at least every 5 minutes to these topics.
-*** example ![node data example](https://github.com/AvansETI/SENDLAB/tree/OpeEms/feature/merge/OpenEMS/io.openems.edge.controller.api.mqtt.custom/assets/mqtt.jpg)
+![node data example](https://github.com/AvansETI/SENDLAB/blob/OpeEms/feature/merge/OpenEMS/io.openems.edge.controller.api.mqtt.custom/assets/mqtt.JPG)
+
+
+The diagram below is an example of how messages are receieved from the broker. Depending on the node type a new component will be needed.
+This diagram uses the Smartmeter component. It also shows the communication between the edge device and the ui.
+ ![node subscribe](https://github.com/AvansETI/SENDLAB/blob/OpeEms/feature/merge/OpenEMS/io.openems.edge.controller.api.mqtt.custom/assets/Communication overview with smartmeter as example.JPG)
+
 
 Orignal source branch (Temp)
 https://github.com/AvansETI/SENDLAB/tree/OpeEms/feature/merge/OpenEMS/io.openems.edge.controller.api.mqtt.custom[Source Code icon:github[]]
 
 End destination
-https://github.com/AvansETI/SENDLAB/tree/Development/OpenEMS/io.openems.edge.controller.api.mqtt.custom
+https://github.com/AvansETI/SENDLAB/tree/Development/OpenEMS/io.openems.edge.controller.api.mqtt.custom[Source Code icon:github[]]
