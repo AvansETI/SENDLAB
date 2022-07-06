@@ -1,3 +1,17 @@
-= io.openems.edge.smartmeter
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.smartmeter[Source Code icon:github[]]
+# OpenEMS Edge Component [Smartmeter]
+
+Een beschrijving van de werking en toepassing van dit component.
+
+## Beschrijving
+
+Het componenent bestaat uit een OSGi Bundel die binnen OpenEMS is gerealiseerd. Het component maakt hierbij gebruik van het standaard generieke component van OpenEMS voor apparaten.
+
+## Toepassing en werking
+
+Voor van toevoegen van nieuwe dataskeleten binnen het component moet er binnen de Smartmeter.java interface nieuwe Channels worden aangemaakt. Hierbij moet er ook een getter en setter worden toegevoegd.
+
+```java
+NAME_OF_DATA(Doc.of(OpenemsType.DOUBLE).unit(Unit.{TYPE}).accessMode(AccessMode.READ_WRITE)
+				.persistencePriority(PersistencePriority.HIGH)),
+```
