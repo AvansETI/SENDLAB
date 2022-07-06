@@ -55,10 +55,11 @@ class RemoteLabsHostPC(threading.Thread):
         self.stop_experiment = False
         self.timestamp = int(time.time())
 
-        self.signal_values = {
+        self._signal_values = {
             "login_code": "123456TEST",
             "login_url": "https://remotelabs.sendlab.nl/solar",
             "user_logged_in": "false",
+            "status": "Status of the VM server",
             "progress": "0",
             "message": "Please login into the experiment server."
         }
@@ -261,6 +262,21 @@ class RemoteLabsHostPC(threading.Thread):
         """Creates a value for the student to login into the system VM. It creates the data points for the experiment, like
            vm_login_code, progress, ... It sends out 'ready_to_start' status and goes to the next state 'start_experiment'."""
         self.debug_print("FSM BUILDING")
+        config_definition = {
+            "experiment_id": self.experiment_id,
+            "config_values": [
+                { 
+                    "key": "rdp.login_url",
+                    "value": self._signal_values["login_url"]
+                },
+                { 
+                    "key": "rdp.login_code",
+                    "value": self._signal_values["login_code"]
+                }
+            ]
+        }
+        self.sio.emit("config_definition", config_definition, "/hostpc") # (BETWEEN 6 and 7)
+
         signal_definition = {
             "experiment_id": self.experiment_id,
             "signal_groups": [
@@ -298,6 +314,7 @@ class RemoteLabsHostPC(threading.Thread):
             ]
         }
         self.sio.emit("signal_definition", signal_definition, "/hostpc") # (7)
+
         actuator_definition = {
             "experiment_id": self.experiment_id,
             "actuators": []
@@ -327,27 +344,32 @@ class RemoteLabsHostPC(threading.Thread):
                 {
                     "group_name": "VM",
                     "name": "login_code",
-                    "value": self.signal_values["login_code"]
+                    "value": self._signal_values["login_code"]
                 },
                 {
                     "group_name": "VM",
                     "name": "login_url",
-                    "value": self.signal_values["login_url"]
+                    "value": self._signal_values["login_url"]
                 },
                 {
                     "group_name": "VM",
                     "name": "user_logged_in",
-                    "value": self.signal_values["user_logged_in"]
+                    "value": self._signal_values["user_logged_in"]
+                },
+                {
+                    "group_name": "VM",
+                    "name": "status",
+                    "value": self._signal_values["status"]
                 },
                 {
                     "group_name": "Experiment",
                     "name": "progress",
-                    "value": self.signal_values["progress"]
+                    "value": self._signal_values["progress"]
                 },
                 {
                     "group_name": "Experiment",
                     "name": "message",
-                    "value": self.signal_values["message"]
+                    "value": self._signal_values["message"]
                 }
             ]
         }
@@ -355,7 +377,7 @@ class RemoteLabsHostPC(threading.Thread):
         # TODO: Interact with the VM to get the required results!! OR The VM sends us this data to an API? That is also a nice test.
         # TODO: When user is logged out or is not logged in within 15 minutes, prepare to stop.
         if self.stop_experiment:
-            self.signal_values["message"] = "Please stop working on the experiment, will stop in 10 minutes."
+            self._signal_values["message"] = "Please stop working on the experiment, will stop in 10 minutes."
             self.fsm_state = FSMStates.STOP_EXPERIMENT
 
         # Simulate the message from the server
@@ -374,6 +396,7 @@ class RemoteLabsHostPC(threading.Thread):
         time.sleep(10) # Processing results
         self._set_status("resetting", "Resetting the experiment")
         self.send_status()
+        self.experiment_id = -1
         self.fsm_state = FSMStates.PREPARE_VM
 
     def run(self):

@@ -1,0 +1,1 @@
+ pm2 start hostpc.py --name RemoteLabs --interpreter python3
