@@ -3,11 +3,13 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SharedModule } from './../../shared/shared.module';
 import { Common_Autarchy } from './common/autarchy/Common_Autarchy';
+import { ChargingStationComponent } from './common/chargingstation/chargingstation.component';
 import { ConsumptionComponent } from './common/consumption/consumption.component';
 import { ConsumptionModalComponent } from './common/consumption/modal/modal.component';
 import { GridComponent } from './common/grid/grid.component';
 import { GridModalComponent } from './common/grid/modal/modal.component';
 import { Common_Selfconsumption } from './common/selfconsumption/Common_Selfconsumption';
+import { SmartmeterComponent } from './common/smartmeter/smartmeter.component';
 import { StorageModalComponent } from './common/storage/modal/modal.component';
 import { StorageComponent } from './common/storage/storage.component';
 import { Controller_ChannelthresholdComponent } from './Controller/Channelthreshold/Channelthreshold';
@@ -115,6 +117,8 @@ import { ProductionComponent } from './production/production.component';
     Controller_Symmetric_PeakShavingModalComponent,
     Controller_Symmetric_TimeSlot_PeakShavingComponent,
     Controller_Symmetric_TimeSlot_PeakShavingModalComponent,
+    ChargingStationComponent,
+    SmartmeterComponent,
     DelayedSellToGridComponent,
     DelayedSellToGridModalComponent,
     Evcs_Api_Cluster,
@@ -134,6 +138,6 @@ import { ProductionComponent } from './production/production.component';
     ProductionModalComponent,
     StorageComponent,
     StorageModalComponent,
-  ]
+  ],
 })
-export class LiveModule { }
+export class LiveModule {}
