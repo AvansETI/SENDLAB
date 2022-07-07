@@ -9,11 +9,19 @@ Het componenent bestaat uit een OSGi Bundel die binnen OpenEMS is gerealiseerd. 
 
 ## Ontwerp
 
-De architectuur van het component ziet er zo uit:
+### Hierarchy
+
+De hierarchy van dit component ziet er zo uit:
 
 ![design](https://raw.githubusercontent.com/AvansETI/SENDLAB/OpenEms/feature/V2G/Laadpaal%20(Venema%20V2G)/ontwerp/component-design.png)
 
 Het V2G component maakt gebruik van het abstracte standaard openems component. Hieraan worden de verschillende Channels toegevoegd die benodigd zijn voor de data die de HTTPClient binnen haalt. De HTTPClient krijgt een JSON Object met alle data binnen en de data worden binnen de Eventhandler individueel gekoppeld aan de Channels
+
+### Channel communicatie
+
+![design](https://openems.github.io/openems.io/openems/latest/_images/subscribeChannels+currentData.png)
+
+De wijze waarop de data gedeeld wordt tussen de UI en Edge is in de bovenstaande diagram uit te lezen.
 
 ## Toepassing en werking
 
