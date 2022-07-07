@@ -21,7 +21,7 @@ Het V2G component maakt gebruik van het abstracte standaard openems component. H
 
 ![design](https://openems.github.io/openems.io/openems/latest/_images/subscribeChannels+currentData.png)
 
-De wijze waarop de data gedeeld wordt tussen de UI en Edge is in de bovenstaande diagram uit te lezen.
+De wijze waarop de data gedeeld wordt tussen de UI en Edge is in de bovenstaande diagram uit te lezen. De communicatie begint eerst bij de widget UI waarnaar het subcribed op het Edge component binnen de UI. Deze stuurt een request via de UI websocket naar de Backend websocket waar de data continue wordt terug gestuurd.
 
 ## Toepassing en werking
 
