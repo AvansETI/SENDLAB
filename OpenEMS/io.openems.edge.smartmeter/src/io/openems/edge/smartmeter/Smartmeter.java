@@ -83,6 +83,7 @@ public interface Smartmeter extends OpenemsComponent, EventHandler {
     public default void _setEnergyReceivedTarrif1(double value) {
         this.getEnergyReceivedTarrif1().setNextValue(value);
     }
+	
     public default DoubleWriteChannel getEnergyReceivedTarrif2() {
         return this.channel(ChannelId.ENERGY_RECEIVED_TARRIF_2);
     }
@@ -90,7 +91,6 @@ public interface Smartmeter extends OpenemsComponent, EventHandler {
     public default void _setEnergyReceivedTarrif2(double value) {
         this.getEnergyReceivedTarrif2().setNextValue(value);
     }
-    
 
     public default IntegerWriteChannel getTariffIndicator() {
         return this.channel(ChannelId.TARIFF_INDICATOR);
@@ -147,7 +147,6 @@ public interface Smartmeter extends OpenemsComponent, EventHandler {
     public default void _setTimestamp(String value) {
         this.getTimestamp().setNextValue(value);
     }
-
 
     public Config getConfig();
 }
