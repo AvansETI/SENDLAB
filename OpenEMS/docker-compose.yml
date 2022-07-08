@@ -1,0 +1,88 @@
+version: '3.6'
+
+services:
+    influxdb:
+        image: influxdb:1.7.9
+        container_name: influxdb
+        # restart: always
+        env_file:
+            - .env
+        environment:
+            - INFLUXDB_DB=${INFLUXDB_DB}
+            - INFLUXDB_USER=${INFLUXDB_USER}
+            - INFLUXDB_ADMIN_ENABLED=true
+            - INFLUXDB_ADMIN_USER=${INFLUXDB_ADMIN_USER}
+            - INFLUXDB_ADMIN_PASSWORD=${INFLUXDB_ADMIN_PASSWORD}
+        volumes:
+            - influxdb-data:/var/lib/influxdb
+        ports:
+            - 8086:8086
+        networks:
+            - emsnet
+
+    emsedge:
+        container_name: emsedge
+        build: 
+            context: ./
+            dockerfile: Dockerfile
+        image: ems-edge
+        depends_on:
+            - influxdb
+        volumes:
+            - emsedge-storage:/etc/openems.d      # For saving openems setting records
+        # expose: 
+        #     - 8080      # 8080 Felix
+        #     - 8084      # 8084 REST/JSON 
+        #     - 8085      # 8085 UI websocket
+        #     - 502       # 502  modbus
+        #     - 8082      # 8082 default websocket       
+        ports:
+            - 9998:8080   # Fellix
+            - 8085:8085
+        networks:
+            - emsnet
+
+    emsui: 
+        container_name: emsui
+        build: 
+            context: ./ui
+            dockerfile: Dockerfile
+        image: ems-ui
+        environment:        
+            GF_WEBSOCKET: "emsedge"
+        depends_on: 
+            - emsedge
+            - influxdb
+        ports: 
+            - 80:80
+            - 8087:8085
+        networks:
+            - emsnet
+
+networks:
+    emsnet:
+        name: emsnet
+volumes:
+    emsedge-storage:      # For saving grafana setting records
+    influxdb-data:
+
+    # docker run --rm \
+    #   -e INFLUXDB_DB=db0 \
+    #   -e INFLUXDB_ADMIN_USER=admin -e INFLUXDB_ADMIN_PASSWORD=admin \
+    #   -e INFLUXDB_USER=user -e INFLUXDB_USER_PASSWORD=user \
+    #   -p 8086:8086 \
+    #   --name=influxdb \
+    #   --net=emsnet \
+    #   influxdb:1.7.9 
+
+
+    # curl \
+    # --include \
+    # --no-buffer \
+    # --header "Connection: Upgrade" \
+    # --header "Upgrade: websocket" \
+    # --header "Host: 172.23.0.1:80" \
+    # --header "Origin: http://172.23.0.1:80" \
+    # --header "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
+    # --header "Sec-WebSocket-Version: 13" \
+    # http://172.23.0.1:80

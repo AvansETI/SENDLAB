@@ -1,0 +1,30 @@
+<oe-flat-widget title="Smartmeter">
+    <oe-flat-widget-line name="Id" [value]="id">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line name="EnergyDeliveredTarrif1" [value]="EnergyDeliveredTarrif1"
+        [converter]="CONVERT_TO_KILO_WATTHOURS">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line name="EnergyDeliveredTarrif2" [value]="EnergyDeliveredTarrif2"
+        [converter]="CONVERT_TO_KILO_WATTHOURS">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line name="EnergyReceivedTarrif1" [value]="EnergyReceivedTarrif1"
+        [converter]="CONVERT_TO_KILO_WATTHOURS">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line name="EnergyReceivedTarrif2" [value]="EnergyReceivedTarrif2"
+        [converter]="CONVERT_TO_KILO_WATTHOURS">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line name="TariffIndicator" [value]="TariffIndicator">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line name="ActualPowerDelivered" [value]="ActualPowerDelivered">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line name="ActualPowerReceived" [value]="ActualPowerReceived">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line name="GasDelivered" [value]="GasDelivered">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line name="EnergyDelivered" [value]="EnergyDelivered" [converter]="CONVERT_TO_KILO_WATTHOURS">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line name="EnergyReceived" [value]="EnergyReceived" [converter]="CONVERT_TO_KILO_WATTHOURS">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line name="Timestamp" [value]="Timestamp">
+    </oe-flat-widget-line>
+</oe-flat-widget>
