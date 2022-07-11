@@ -282,17 +282,14 @@ class RemoteLabsHostPC(threading.Thread):
                     "name": "VM",
                     "signal_definitions": [
                         {
-                            "name": "login_code",
-                            "type": "string"
-                        },
-                        {
-                            "name": "login_url",
-                            "type": "string"
-                        },
-                        {
                             "name": "user_logged_in",
                             "type": "boolean"
+                        },
+                        {
+                            "name": "status",
+                            "type": "string"
                         }
+
                     ]
                 },
                 {
@@ -339,16 +336,6 @@ class RemoteLabsHostPC(threading.Thread):
         signal_values = {
             "experiment_id": self.experiment_id,
             "signal_values": [
-                {
-                    "group_name": "VM",
-                    "name": "login_code",
-                    "value": self._signal_values["login_code"]
-                },
-                {
-                    "group_name": "VM",
-                    "name": "login_url",
-                    "value": self._signal_values["login_url"]
-                },
                 {
                     "group_name": "VM",
                     "name": "user_logged_in",
