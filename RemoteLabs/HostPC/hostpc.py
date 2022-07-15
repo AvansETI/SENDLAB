@@ -35,6 +35,8 @@ hostpc.start()
 def connect():
     hostpc.event_connect()
     print('connection established')
+    # TODO: Add the authorization in here!
+    hostpc.send_authoriztion_message()
 
 @sio.event
 def connect_error(data):

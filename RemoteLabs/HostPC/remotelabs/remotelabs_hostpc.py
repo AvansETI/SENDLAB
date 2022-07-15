@@ -10,6 +10,36 @@
 @ideas      Maybe it is possible to load previous student results, based on the previous login_code?!       
 """
 
+"""VBoxManage
+
+restore snapshot => https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/vboxmanage-snapshot.html
+.\VBoxManage.exe snapshot "Linux Tiny Core" list => Take the last one or with a specific name
+   Name: initial (UUID: 073a7297-dcc6-4065-be87-581e7d982dec)
+      Name: update (UUID: 1d42c8d4-f597-41d1-b8e0-a36d7fda3d8c) *
+.\VBoxManage.exe snapshot "Linux Tiny Core" restore "update" => Restoring
+
+start vm => https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/vboxmanage-startvm.html
+.\VBoxManage.exe startvm "Linux Tiny Core"
+Waiting for VM "Linux Tiny Core" to power on...
+VM "Linux Tiny Core" has been successfully started.
+
+snapshot current VM:
+.\VBoxManage.exe snapshot "Linux Tiny Core" take "snapshot_12345" # Make a snapshot when the vm is stopped!
+
+stop vm => https://docs.oracle.com/en/virtualization/virtualbox/6.0/user/vboxmanage-controlvm.html
+.\VBoxManage controlvm "Linux Tiny Core" acpipowerbutton => Did not work for me
+.\VBoxManage controlvm "Linux Tiny Core" savestate => Only saves the state
+.\VBoxManage controlvm "Linux Tiny Core" poweroff => Cuts the power!
+
+
+
+start vm headless / VRDP
+
+
+
+"""
+
+
 from distutils.log import debug
 import time, threading, json, base64, requests
 from enum import Enum
@@ -80,6 +110,13 @@ class RemoteLabsHostPC(threading.Thread):
         unencoded = self.config["username"] + ":" + self.config["password"]
         encoded = base64.b64encode(unencoded.encode('utf-8')).decode('utf-8')
         return str(encoded)
+
+    def send_authoriztion_message(self):
+        self.sio.emit("remote_labs_connect_params", {
+            "Authorization": self.config["password"],
+            "RemoteLabs-Type": "HostPC",
+            "RemoteLabs-SetupId": self.config["username"]
+        }, "/hostpc")
 
     def _set_experiment_id(self, experiment_id):
         self.experiment_id = experiment_id
