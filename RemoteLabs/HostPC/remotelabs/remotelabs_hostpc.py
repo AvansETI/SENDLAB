@@ -79,7 +79,7 @@ class RemoteLabsHostPC(threading.Thread):
 
         # Experiment status variables
         self.experiment_id = -1
-        self.status = "idle"
+        self.status = ""
         self.status_info = "HostPC initiated"
         self.build_experiment_data = None
         self.stop_experiment = False
@@ -144,12 +144,9 @@ class RemoteLabsHostPC(threading.Thread):
         if ( self.fsm_state == FSMStates.START ): # This events changes state
             self.send_status() # (1)
             self.fsm_state = FSMStates.INIT
-
-        elif self.fsm_state == FSMStates.BUILD_EXPERIMENT: # (5)
-            if ( data["status"] != "building" ):
-                print("event_get_status: ERROR?!")
-            # INFO: Prepare for experimen, but everything is good to go
-            self.fsm_state = FSMStates.BUILDING
+            
+        else: # Always send a status back to the server on request
+             self.send_status()
 
     def get_experiment_files(self, download_urls):
         """Retrieve the experiment files from the server using the data.
@@ -173,7 +170,8 @@ class RemoteLabsHostPC(threading.Thread):
             self._set_status("receiving_experiment_files", "Ready for experiment")
             self.send_status() # (3)
             if "download_urls" in data:
-                self.get_experiment_files(data["download_urls"]) # (4)
+                print(data["download_urls"])
+#                self.get_experiment_files(data["download_urls"]) # (4)
             if "maxduration" in data:
                 experiment_max_duration = data["maxduration"]
                 print("event_build_experiment: MAX DURATION GIVEN: " + str(experiment_max_duration))
@@ -241,7 +239,7 @@ class RemoteLabsHostPC(threading.Thread):
     def state_init(self):
         """INIT: The initialization state that is used to get everything up and running."""
         self.debug_print("FSM INIT")
-        self.sio.emit("free_message", { "test": "test"}, "/hostpc") # For testeing
+#        self.sio.emit("free_message", { "test": "test"}, "/hostpc") # For testeing
         self.fsm_state = FSMStates.PREPARE_VM
 
     def clean_up_vm(self):
@@ -288,13 +286,13 @@ class RemoteLabsHostPC(threading.Thread):
             self.event_build_experiment({"experiment_id": 10}) # SIMULATE RECEIVED BUILD_SIGNAL
 
     def state_build_experiment(self):
-        """Wait on the status 'building' message."""
+        """Wait on the status 'building' message. BUG: We need to send the building, when we are builing."""
         self.debug_print("FSM BUILD_EXPERIMENT")
-        
-        if self.simulation:
-            time.sleep(10) # SIMULATE RECEIVED BUILD_SIGNAL
-            self.event_get_status({"status": "building"}) # SIMULATE RECEIVED BUILD_SIGNAL
 
+        self._set_status("building", "Ready to build the experimen") # (5)
+        self.send_status()
+        self.fsm_state = FSMStates.BUILDING
+        
     def state_building(self):
         """Creates a value for the student to login into the system VM. It creates the data points for the experiment, like
            vm_login_code, progress, ... It sends out 'ready_to_start' status and goes to the next state 'start_experiment'."""
